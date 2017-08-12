@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:nfo="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+
+	<nfo:FileDataObject rdf:about="file:///home/root66/documents/organise-fw/diplomarbeit_vorschlag.odt">
+		<rdf:type rdf:resource="http://ebiquity.umbc.edu/ontology/publication.owl#MastersThesis"/>
+		<rdf:type rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument"/>
+		<dc:title>Vorschlag einer Diplomarbeit</dc:title>
+		<dc:description>Themenvorschlag an Herrn Fuhr einen Teilaspekt des Organise Framework als Diplomarbeit zu bearbeiten.</dc:description>
+		<dc:author>Sebastian Faubel</dc:author>
+		<xsd:gYear>2008</xsd:gYear>
+		<xsd:gMonth>09</xsd:gMonth>
+		<xsd:gDay>20</xsd:gDay>
+	</nfo:FileDataObject>
+</rdf:RDF>

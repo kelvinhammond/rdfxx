@@ -1,0 +1,53 @@
+YYYY-MM-DD  John Doe  <johndoe@example.com>
+
+	* myfile.ext (myfunction): my changes made
+	  additional changes
+
+	* myfile.ext (unrelated_change): my changes made
+	  to myfile.ext but completely unrelated to the above
+
+	* anotherfile.ext (somefunction): more changes
+
+Future
+	* RDFS concepts
+	* Postgresql storage
+	* Prefixes and namespaces
+	* Edges
+	* Unit Test Harness
+
+2017-08-04	Brenton Ross
+
+	* all: Removed dead code, tidied up comments.
+	* all: Added const declarations where appropriate
+	* all: Added constructors for shared pointers.
+
+2017-08-02	Brenton Ross
+
+	* query: Added execute method to query, added iterator to query_results.
+
+2017-08-01	Brenton Ross
+
+	* projection.cpp: Updated for new interface.
+	* foaf.cpp: Updated for new interface.
+	* all: Hide C interface
+	* all: Introduced std::shared_ptr to make memory handling more reliable
+	* all: Replaced char * with std::string
+	* all: Fix problems with copy constructors
+
+2017-07-26	Brenton Ross
+
+	* all: Update copyright and author
+
+2017-07-25	Brenton Ross
+
+	* all: Removed throw from method signatures since it can cause terminate to be called.
+	* all: Replaced exception handling
+	* world.hpp, world.cpp: Thread safe singleton
+	* world.hpp, world.cpp: Error and warning callbacks
+	
+
+2017-07-24	Brenton Ross	<rossb@fwi.net.au>
+
+	* Forked redland-cpp-code-38-trunk <https://sourceforge.net/p/redland-cpp/code/HEAD/tree/trunk/>
+	* Modified for autotools
+	* Change namespace from Redland to rdf

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+	xml:base="http://localhost/projections#"
+	xmlns:nfo="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:pp="http://www.organise-fw.org/pp/1.0/terms#">
+
+	<!-- NOTE: Add devices to pp Ontology -->
+
+	<pp:PathProjection rdf:ID="Document">
+		<pp:projectionFor rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Document"/>
+	</pp:PathProjection>
+
+	<nfo:Folder rdf:ID="Document.Folder.1">
+		<nfo:belongsToContainer rdf:resource="#Document"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li>Documents</rdf:li>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+	<nfo:FileDataObject rdf:ID="Document.FileDataObject.1">
+		<nfo:belongsToContainer rdf:resource="#Document"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li rdf:resource="http://purl.org/dc/elements/1.1/author"/>
+				<rdf:li>-</rdf:li>
+				<rdf:li rdf:resource="http://purl.org/dc/elements/1.1/title" />
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:FileDataObject>
+
+	<nfo:Folder rdf:ID="DocumentYear.Folder.1">
+		<nfo:belongsToContainer rdf:resource="#TextDocument.Folder.1"/>
+		<nfo:belongsToContainer rdf:resource="#Spreadsheet.Folder.1"/>
+		<nfo:belongsToContainer rdf:resource="#Presentation.Folder.1"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+	<pp:PathProjection rdf:ID="TextDocument">
+		<pp:projectionFor rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument"/>
+	</pp:PathProjection>
+
+	<nfo:Folder rdf:ID="TextDocument.Folder.1">
+		<nfo:belongsToContainer rdf:resource="#TextDocument"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li>Texts</rdf:li>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+	<pp:PathProjection rdf:ID="Spreadsheet">
+		<pp:projectionFor rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Spreadsheet"/>
+	</pp:PathProjection>
+
+	<nfo:Folder rdf:ID="Spreadsheet.Folder.1">
+		<nfo:belongsToContainer rdf:resource="#Spreadsheet"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li>Spreadsheets</rdf:li>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+	<pp:PathProjection rdf:ID="Presentation">
+		<pp:projectionFor rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation"/>
+	</pp:PathProjection>
+
+	<nfo:Folder rdf:ID="Presentation.Folder.1">
+		<nfo:belongsToContainer rdf:resource="#Presentation"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li>Presentations</rdf:li>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+	<pp:PathProjection rdf:ID="Publication">
+		<pp:projectionFor rdf:resource="http://ebiquity.umbc.edu/ontology/publication.owl#Publication"/>
+		<pp:projectionBaseFolder>/mnt/server</pp:projectionBaseFolder>
+	</pp:PathProjection>
+
+	<nfo:Folder rdf:ID="Publication.Folder.1">
+		<nfo:belongsToContainer rdf:resource="#Publication"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li>Publications</rdf:li>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+	<nfo:Folder rdf:ID="Publication.Folder.2">
+		<nfo:belongsToContainer rdf:resource="#Publication.Folder.1"/>
+		<pp:nodeName>
+			<rdf:Seq>
+				<rdf:li rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+			</rdf:Seq>
+		</pp:nodeName>
+	</nfo:Folder>
+
+</rdf:RDF>
