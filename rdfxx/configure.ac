@@ -1,5 +1,5 @@
 AC_PREREQ(2.61)
-AC_INIT(rdfxx, 0.0)
+AC_INIT(sassy, rdfxx.0.0)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_HEADER([config.h])
