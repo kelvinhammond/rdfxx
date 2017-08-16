@@ -36,21 +36,21 @@ using namespace std;
 //	Serializer
 // -----------------------------------------------------------------------------
 
-Serializer::Serializer( const std::string &name, const std::string & syntax_mime )
-	: std::shared_ptr< Serializer_ >( new _Serializer( name, syntax_mime ))
+Serializer::Serializer( World w, const std::string &name, const std::string & syntax_mime )
+	: std::shared_ptr< Serializer_ >( new _Serializer( w, name, syntax_mime ))
 {}
 
 // -----------------------------------------------------------------------------
 
-Serializer::Serializer( const std::string &name, URI syntax_uri )
-	: std::shared_ptr< Serializer_ >( new _Serializer( name, syntax_uri ))
+Serializer::Serializer( World w, const std::string &name, URI syntax_uri )
+	: std::shared_ptr< Serializer_ >( new _Serializer( w, name, syntax_uri ))
 {}
 
 // -----------------------------------------------------------------------------
 //	_Serializer
 // -----------------------------------------------------------------------------
 
-_Serializer::_Serializer(const std::string& _name, const std::string& _syntax_mime)
+_Serializer::_Serializer( World _w, const std::string& _name, const std::string& _syntax_mime)
 	: serializer(0)
 {
     if(_name.empty())
@@ -58,7 +58,8 @@ _Serializer::_Serializer(const std::string& _name, const std::string& _syntax_mi
 	throw VX(Error) << "Factory name parameter was blank";
     }
 
-    _World& world = _World::instance();
+    // _World& world = _World::instance();
+    librdf_world *world = DEREF( World, librdf_world, _w );
 
     serializer = librdf_new_serializer(world, _name.c_str(), _syntax_mime.c_str(), 0);
     if(!serializer)
@@ -70,7 +71,7 @@ _Serializer::_Serializer(const std::string& _name, const std::string& _syntax_mi
 
 // -----------------------------------------------------------------------------
 
-_Serializer::_Serializer(const std::string& _name, URI _syntax_uri)
+_Serializer::_Serializer( World _w, const std::string& _name, URI _syntax_uri)
 	: serializer(0)
 {
     if(_name.empty())
@@ -79,7 +80,8 @@ _Serializer::_Serializer(const std::string& _name, URI _syntax_uri)
     }
 
     librdf_uri * su = DEREF( URI, librdf_uri, _syntax_uri );
-    _World& world = _World::instance();
+    // _World& world = _World::instance();
+    librdf_world *world = DEREF( World, librdf_world, _w );
 
     serializer = librdf_new_serializer(world, _name.c_str(), 0, su );
     if(!serializer)

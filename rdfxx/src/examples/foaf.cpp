@@ -34,25 +34,26 @@ int main(void)
         // cout << "Opening BDB store in /tmp/.." << endl;
         // Storage storage("hashes", "practrdf", "new='yes',hash-type='bdb',dir='/tmp/'");
 
+	World world = Universe::instance().world("Friends");
         // Create a new model to add statements to.
         cout << "Creating new model.." << endl;
         // Model model = Model_::make(storage);
-	Model model( "hashes", "practrdf", "new='yes',hash-type='bdb',dir='/tmp/'");
+	Model model( world, "hashes", "practrdf", "new='yes',hash-type='bdb',dir='/tmp/'");
 	cout << "created model" << endl;
 
         // Prepare parsing a RDF/XML file.
-        Parser parser("raptor", "application/rdf+xml");
-        URI file_uri("file:foaf.rdf");
+        Parser parser( world, "raptor", "application/rdf+xml");
+        URI file_uri(world, "file:foaf.rdf");
 	cout << "created parser" << endl;
 
-        Node n1("http://organise.org/ofw/0.4/categories/documents");
-        Node n2("http://purl.org/dc/0.1/title");
-        Node n3("Dokumente", false);
-        Node n4("Documents", false);
+        Node n1(world, "http://organise.org/ofw/0.4/categories/documents");
+        Node n2(world, "http://purl.org/dc/0.1/title");
+        Node n3(world, "Dokumente", false);
+        Node n4(world, "Documents", false);
 	cout << "created nodes" << endl;
         
-        Statement s1(n1,n2,n3);
-        Statement s2(n1,n2,n4);
+        Statement s1(world,n1,n2,n3);
+        Statement s2(world,n1,n2,n4);
 	cout << "Created statements" << endl;
         rc = model->add(s1);
 	if ( ! rc )
@@ -83,8 +84,8 @@ int main(void)
         cout << "Processed " << count << " statements." << endl;
 
         // Serialize as RDF/XML.
-        Serializer serializer;
-	URI ns_uri("http://xmlns.com/foaf/0.1/");
+        Serializer serializer(world);
+	URI ns_uri(world, "http://xmlns.com/foaf/0.1/");
 	serializer->setNamespace( ns_uri, "foaf" );
         serializer->toFile("foaf.rdf.new", model);
 
@@ -100,7 +101,7 @@ int main(void)
 	cout << (string)qs << endl;
 
         // Setup query.
-        Query query(qs);
+        Query query(world, qs);
         query->setLimit(5);
 	cout << "Created query" << endl;
 

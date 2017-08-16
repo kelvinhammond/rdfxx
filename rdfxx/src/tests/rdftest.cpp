@@ -49,7 +49,9 @@ const string SASSY::cfi::XINI::config =
 
 URITestCase::URITestCase( csr nm)
 	: TestCaseT<URITestCase>(nm)
-{}
+{
+	world = Universe::instance().world("test");
+}
 
 // ------------------------------------------------------------
 
@@ -64,7 +66,7 @@ URITestCase::runTest()
 	bool rc = true;
 
 	try {
-		URI uri("http://purl.org/dc/0.1/title");
+		URI uri(world,"http://purl.org/dc/0.1/title");
 		rc = rc && test( true, "uri 1");
 
 		rc = rc && test( (uri->toString() == "http://purl.org/dc/0.1/title"), "uri 2");
@@ -96,7 +98,9 @@ URITestCase::runTest()
 
 NodeTestCase::NodeTestCase( csr nm)
 	: TestCaseT<NodeTestCase>(nm)
-{}
+{
+	world = Universe::instance().world("test");
+}
 
 // ------------------------------------------------------------
 
@@ -111,27 +115,27 @@ NodeTestCase::runTest()
 	bool rc = true;
 
 	try {
-		Node n1("http://purl.org/dc/0.1/title");
+		Node n1(world,"http://purl.org/dc/0.1/title");
 		rc = rc && test( true, "node 1");
 		rc = rc && test( n1->isResource(), "node 2");
 		rc = rc && test( ! n1->isBlank(), "node 3");
 		rc = rc && test( ! n1->isLiteral(), "node 4");
-		Node n2;
+		Node n2(world);
 		rc = rc && test( n2->isBlank(), "node 5");
-		Node n3("fred", false);
+		Node n3(world,"fred", false);
 		rc = rc && test( n3->isLiteral(), "node 6");
-		Node n4("<dc:name>TestLog</dc:name>", true);
+		Node n4(world,"<dc:name>TestLog</dc:name>", true);
 		rc = rc && test( n4->isLiteral(), "node 7");
-		Node n5("<dc:name>TestLog</dc:name>", false, "en");
+		Node n5(world,"<dc:name>TestLog</dc:name>", false, "en");
 		rc = rc && test( n5->isLiteral(), "node 8");
-		Node n6("fred", false, "en");
+		Node n6(world,"fred", false, "en");
 		rc = rc && test( n6->isLiteral(), "node 9");
-		Node n7("http://purl.org/dc/0.1/title", false);
+		Node n7(world,"http://purl.org/dc/0.1/title", false);
 		rc = rc && test( !n7->isResource(), "node 10");
 		rc = rc && test( n7->isLiteral(), "node 12");
 
-		URI uri("http://organise.org/ofw/0.4/categories/documents");
-		Node n8( uri );
+		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
+		Node n8(world, uri );
 		rc = rc && test( n8->isResource(), "node 11");
 
 		Node n9 = n8->copy();
@@ -161,7 +165,9 @@ NodeTestCase::runTest()
 
 StmntTestCase::StmntTestCase(csr nm )
 	: TestCaseT<StmntTestCase>(nm)
-{}
+{
+	world = Universe::instance().world("test");
+}
 
 // ------------------------------------------------------------
 
@@ -177,12 +183,12 @@ StmntTestCase::runTest()
 
 	try {
 		Node n1;
-		Statement s1( n1, n1, n1 );
+		Statement s1(world, n1, n1, n1 );
 		rc = rc && test( true, "stmnt 1");
 		rc = rc && test( ! s1->isComplete(), "stmnt 2");
-		Node n2("fred", false);
-		Node n3("isA", false);
-		Node n4("moron", false );
+		Node n2(world,"fred", false);
+		Node n3(world,"isA", false);
+		Node n4(world,"moron", false );
 		s1->subject(n2);
 		rc = rc && test( ! s1->isComplete(), "stmnt 3");
 		NodeRef nr2 = s1->subject();
@@ -198,15 +204,15 @@ StmntTestCase::runTest()
 		// this test is false because all the nodes are literals
 		rc = rc && test( ! s1->isComplete(), "stmnt 7");
 
-		URI uri("http://organise.org/ofw/0.4/categories/documents");
-		s1->subject(Node(uri));
+		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
+		s1->subject(Node(world, uri));
 		rc = rc && test( Node(s1->subject())->toURI() == uri, "stmnt 8");
 
-		n3 = Node("http://purl.org/dc/0.1/title");
+		n3 = Node(world,"http://purl.org/dc/0.1/title");
 		s1->predicate(n3);
 		rc = rc && test( s1->isComplete(), "stmnt 9");
 		
-		Statement s2( n1, n1, n1 );
+		Statement s2(world, n1, n1, n1 );
 		s2->clear();
 		s2->predicate(n3);
 		rc = rc && test( s1->match(s2), "stmnt 10");
@@ -237,7 +243,9 @@ StmntTestCase::runTest()
 
 ModelTestCase::ModelTestCase( csr nm)
 	: TestCaseT< ModelTestCase >(nm)
-{}
+{
+	world = Universe::instance().world("test");
+}
 
 // ------------------------------------------------------------
 
@@ -252,21 +260,21 @@ ModelTestCase::runTest()
 	bool rc = true;
 
 	try {
-		Model m1("memory");
+		Model m1(world,"memory");
 		rc = rc && test( m1->size() == 0, "model 1");
 		cout << "model size is " << m1->size() << endl;
-		URI uri("http://organise.org/ofw/0.4/categories/documents");
-		Node n1( uri );
-		Node n2("http://purl.org/dc/0.1/title");
-		Node n3("some literal value", false);
-		Node n4("a different literal value", false );
+		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
+		Node n1(world, uri );
+		Node n2(world,"http://purl.org/dc/0.1/title");
+		Node n3(world,"some literal value", false);
+		Node n4(world,"a different literal value", false );
 
-		Statement s1( n1, n2, n3 );
+		Statement s1(world, n1, n2, n3 );
 		m1->add( n1, n2, n3 );
 		rc = rc && test( m1->size() == 1, "model 2");
 		rc = rc && test( m1->contains( s1 ), "model 3");
 
-		Statement s2( n1, n2, n4);
+		Statement s2(world, n1, n2, n4);
 		rc = rc && test( ! m1->contains( s2 ), "model 4");
 		bool res = m1->add( s1 );
 		rc = rc && test( res, "model 5"); // odd
@@ -310,6 +318,7 @@ ModelTestCase::runTest()
 StoreTestCase::StoreTestCase(csr nm)
 	: TestCaseT< StoreTestCase >(nm)
 {
+	world = Universe::instance().world("test");
 	XINI & xini = XINI::instance();
 	string xpath("/SASSY-CONFIG/Test/librdfxx/TestData");
 	int n = xini.getVals( xpath, rdfFiles );
@@ -329,9 +338,6 @@ StoreTestCase::runTest()
 {
 	bool rc = true;
 	
-	// need to prevent stores being deleted before the models
-	// TODO - this needs to be handled better
-	// std::map< string, Storage > stores;
 	std::map< string, Model > models;
 
 	for ( auto &f : rdfFiles )
@@ -339,10 +345,8 @@ StoreTestCase::runTest()
 		Path p(f);
 		string s(p.base());
 		// cout << "Parsing " << s << endl;
-		// Storage store("file", f);
-		Model m("file", f);
+		Model m(world,"file", f);
 		models[s] = m;
-		// stores[s] = store;
 	}
 	rc = rc && test( models.size() > 0, "store 1");
 
@@ -372,6 +376,7 @@ StoreTestCase::runTest()
 IOTestCase::IOTestCase( csr nm )
 	: TestCaseT<IOTestCase>(nm)
 {
+	world = Universe::instance().world("test");
 	XINI & xini = XINI::instance();
 	string xpath("/SASSY-CONFIG/Test/librdfxx/TestData");
 	int n = xini.getVals( xpath, rdfFiles );
@@ -393,25 +398,25 @@ IOTestCase::runTest()
 
 	try {
 		string fn( rdfFiles.front() );
-		Model m1("file", fn );
+		Model m1(world,"file", fn );
 		rc = rc && test( true, "io 1");
-		Serializer ser;
+		Serializer ser(world);
 		rc = rc && test( true, "io 2");
-		URI uri( string("file://") + fn + "#" );
+		URI uri(world, string("file://") + fn + "#" );
 		ser->setNamespace( uri, "bross");
 		bool res = ser->toFile( "/tmp/iotest.rdf", m1, uri );
 		rc = rc && test( res, "io 3");
 
 		vector< string> parsers;
-		Parser_::listParsers( parsers );
+		Parser_::listParsers(world, parsers );
 		for( auto & x : parsers )
 			cout << x << endl;
 		rc = rc && test( parsers.size() > 0, "io 4" );
 
-		Model m2("memory" );
-		Parser p( "rdfxml" );
-		URI base( "file://tmp/");
-		URI local( "file:///tmp/iotest.rdf");
+		Model m2(world,"memory" );
+		Parser p(world, "rdfxml" );
+		URI base(world, "file://tmp/");
+		URI local(world, "file:///tmp/iotest.rdf");
 		p->parseIntoModel(m2, local, base );
 		rc = rc && test( true, "io 5");
 
@@ -440,6 +445,7 @@ IOTestCase::runTest()
 QueryTestCase::QueryTestCase( csr nm)
 	: TestCaseT<QueryTestCase>(nm)
 {
+	world = Universe::instance().world("test");
 	XINI & xini = XINI::instance();
 	string xpath("/SASSY-CONFIG/Test/librdfxx/TestData");
 	int n = xini.getVals( xpath, rdfFiles );
@@ -461,7 +467,7 @@ QueryTestCase::runTest()
 
 	try {
 		string fn( rdfFiles.front() );
-		Model m1("file", fn );
+		Model m1(world,"file", fn );
 
 		/*
 		Stream x = m1->toStream();
@@ -488,7 +494,7 @@ QueryTestCase::runTest()
 		"}\n";
 		rc = rc && test( ts == (string)qs, "query 1");
 
-		Query q(qs);
+		Query q(world,qs);
 		QueryResults qr = q->execute(m1);
 
 		int count = 0;
@@ -522,7 +528,9 @@ QueryTestCase::runTest()
 
 ExampleTestCase::ExampleTestCase( csr nm)
 	: TestCaseT<ExampleTestCase>(nm), testValue(100)
-{}
+{
+	world = Universe::instance().world("test");
+}
 
 // ------------------------------------------------------------
 

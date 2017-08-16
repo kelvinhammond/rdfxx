@@ -39,13 +39,19 @@ using namespace std;
 // -----------------------------------------------------------------------------
 
 Statement::Statement()
-	: std::shared_ptr< Statement_ >( new _Statement )
+	: std::shared_ptr< Statement_ >( nullptr )
 {}
 
 // -----------------------------------------------------------------------------
 
-Statement::Statement( Node subject, Node predicate, Node object)
-	: std::shared_ptr< Statement_ >( new _Statement( subject, predicate, object ))
+Statement::Statement( World w)
+	: std::shared_ptr< Statement_ >( new _Statement(w) )
+{}
+
+// -----------------------------------------------------------------------------
+
+Statement::Statement( World w, Node subject, Node predicate, Node object)
+	: std::shared_ptr< Statement_ >( new _Statement( w, subject, predicate, object ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -64,11 +70,12 @@ Statement::Statement( StatementRef _ref )
 //	_Statement
 // -----------------------------------------------------------------------------
 
-_Statement::_Statement()
-	: statement(0), free(true)
+_Statement::_Statement(World _w)
+	: world(_w), statement(0), free(true)
 {
-	_World & world = _World::instance();
-    	statement = librdf_new_statement(world); 
+	// _World & world = _World::instance();
+	librdf_world* w = DEREF( World, librdf_world, _w );
+    	statement = librdf_new_statement(w); 
     	if(!statement)
 		throw VX(Error) << "Failed to allocate statement";
 
@@ -76,10 +83,11 @@ _Statement::_Statement()
 
 // -----------------------------------------------------------------------------
 
-_Statement::_Statement(Node _subject, Node _predicate, Node _object)
-	 : statement(0), free(true)
+_Statement::_Statement(World _w, Node _subject, Node _predicate, Node _object)
+	 : world(_w), statement(0), free(true)
 {
-    _World & world = _World::instance();
+    	// _World & world = _World::instance();
+	librdf_world* w = DEREF( World, librdf_world, _w );
 
 	librdf_node *s = DEREF( Node, librdf_node, Node(_subject) );
 	librdf_node *p = DEREF( Node, librdf_node, Node(_predicate) );
@@ -92,7 +100,7 @@ _Statement::_Statement(Node _subject, Node _predicate, Node _object)
 	// Later we may provide a move interface to save making copies.
 	//
 
-    statement = librdf_new_statement_from_nodes(world, 
+    statement = librdf_new_statement_from_nodes(w, 
     			librdf_new_node_from_node(s), 
 			librdf_new_node_from_node(p), 
 			librdf_new_node_from_node(o) );
@@ -152,7 +160,7 @@ _Statement::subject()
     if(subject)
     {
 	// subject is a shared pointer within librdf, so we won't delete it
-    	subject_holder.reset( new _Node(subject, false));
+    	subject_holder.reset( new _Node(world, subject, false));
     }
     else
     {	
@@ -183,7 +191,7 @@ _Statement::predicate()
     if(predicate)
     {
 	// predicate is a shared pointer within librdf, so we won't delete it
-        predicate_holder.reset( new _Node( predicate, false ));
+        predicate_holder.reset( new _Node( world, predicate, false ));
     }
     else
     {
@@ -213,7 +221,7 @@ _Statement::object()
     if(object)
     {
 	// object is a shared pointer within librdf, so we won't delete it
-        object_holder.reset( new _Node( object, false ));
+        object_holder.reset( new _Node( world, object, false ));
     }
     else
     {
@@ -276,7 +284,8 @@ _Statement::toString() const
 	string s;
 	char *str = NULL;
 	size_t len = 2;
-	raptor_world * rw = librdf_world_get_raptor(_World::instance());
+	librdf_world* w = DEREF( World, librdf_world, world );
+	raptor_world * rw = librdf_world_get_raptor(w);
 	if ( rw )
 	{
 		raptor_iostream *stream = raptor_new_iostream_to_string(rw, (void**)& str, &len, malloc );

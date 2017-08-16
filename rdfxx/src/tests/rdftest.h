@@ -21,6 +21,7 @@
 
 #include <cfi/testmgr.h>
 #include <cfi/stringy.h>
+#include "rdfxx/rdfxx.h"
 
 #ifndef SASSY_RDFTEST_H
 #define SASSY_RDFTEST_H
@@ -30,6 +31,7 @@
 class URITestCase : public SASSY::cdi::TestCaseT<URITestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 
 public:
@@ -42,6 +44,7 @@ public:
 class NodeTestCase : public SASSY::cdi::TestCaseT<NodeTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 
 public:
@@ -54,6 +57,7 @@ public:
 class StmntTestCase : public SASSY::cdi::TestCaseT<StmntTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 
 public:
@@ -66,6 +70,7 @@ public:
 class ModelTestCase : public SASSY::cdi::TestCaseT<ModelTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 
 public:
@@ -78,6 +83,7 @@ public:
 class StoreTestCase :  public SASSY::cdi::TestCaseT<StoreTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 	std::vector< std::string > rdfFiles;
 public:
@@ -92,6 +98,7 @@ public:
 class IOTestCase : public SASSY::cdi::TestCaseT<IOTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 	std::vector< std::string > rdfFiles;
 public:
@@ -105,6 +112,7 @@ public:
 class QueryTestCase : public SASSY::cdi::TestCaseT<QueryTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 	std::vector< std::string > rdfFiles;
 public:
@@ -117,6 +125,7 @@ public:
 class ExampleTestCase : public SASSY::cdi::TestCaseT<ExampleTestCase>
 {
 protected:
+	rdf::World world;
 	bool runTest();
 	int testValue;
 public:

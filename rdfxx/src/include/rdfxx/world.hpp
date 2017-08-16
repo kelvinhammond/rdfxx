@@ -70,7 +70,7 @@ class _World : public World_
     ErrorHandler forErrors;
     ErrorHandler forWarnings;
  
- protected:
+ public:
     //! RDF C++ World constructor.
     /*! Protected due to singleton state.
      */

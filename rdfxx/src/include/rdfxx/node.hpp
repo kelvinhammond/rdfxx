@@ -47,6 +47,7 @@ class _Node : public Node_
 {
     // ------------------------------------------------------------------------
     protected:
+    World world;
     librdf_node* node;		// owned except when free is false
  
     // Indicate whether to free node in destructor. 
@@ -68,12 +69,13 @@ class _Node : public Node_
      *  Throws AllocationError if allocation/initialization failed. 
      */
     _Node();
+    _Node( World );
 
     //! RDF C++ Node constructor.
     /*! Initializes a new Node object from a given URI string.
      *  Throws AllocationError if allocation/initialization failed. 
      */
-    _Node(const std::string & _uri);
+    _Node( World, const std::string & _uri);
 
     //! RDF C++ Node constructor.
     /*! Initializes a new Node object from a given URI string.
@@ -81,7 +83,7 @@ class _Node : public Node_
      *
      *  @param uri A URI string.
      */
-    _Node(const char* _uri);
+    _Node( World, const char* _uri);
 
     //! RDF C++ Node constructor.
     /*! Initializes a new Node object with a given URI object.
@@ -89,7 +91,7 @@ class _Node : public Node_
      *
      *  @param uri A URI object.
      */
-    _Node( URI _uri);
+    _Node( World,  URI _uri);
 
     //! RDF C++ Node constructor.
     /*! Initializes a new Node object with a given URI.
@@ -97,7 +99,7 @@ class _Node : public Node_
      *
      *  @param uri A URI string.
      */
-    _Node(const char* _literal, bool _is_wf_xml, const char* xml_language=0);
+    _Node( World, const char* _literal, bool _is_wf_xml, const char* xml_language=0);
 
     //! RDF C++ Node copy-constructor.
     /*! Copies a RDF C++ Node object.
@@ -105,7 +107,7 @@ class _Node : public Node_
      * 
      *  @param node A RDF C++ Node object reference.
      */
-    _Node(const _Node& _node);
+    _Node( const _Node& _node);
 
     //  RDF C++ Node constructor.
     /*  Initializes a new RDF Node from a given librdf_node* pointer.
@@ -116,7 +118,7 @@ class _Node : public Node_
      *
      *  Throws ArgumentError if given a 0-pointer.
      */ 
-    _Node(librdf_node* _node, bool freeOnDelete);
+    _Node(World, librdf_node* _node, bool freeOnDelete);
 
     //! RDF C++ Node destructor.
     /*  Deletes the internally stored librdf_node object.

@@ -52,7 +52,7 @@ class _Stream : public Stream_
     /*! Initializes a empty Stream object.
      *  Throws AllocationError if allocation/initialization failed.
      */
-    _Stream();
+    _Stream( World );
 
     //! RDF C++ Stream constructor.
     /*! Initializes a Stream object from a given librdf_stream* object.
@@ -62,7 +62,7 @@ class _Stream : public Stream_
      *  @param _uri The URI to be parsed.
      *  @param _base_uri The base URI to use.
      */
-    _Stream(Parser _parser, URI _uri, URI _base_uri);
+    _Stream( Parser _parser, URI _uri, URI _base_uri);
 
     //! RDF C++ Stream constructor.
     /*! Initializes a a Stream object from a given librdf_stream* object.

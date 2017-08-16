@@ -34,6 +34,35 @@ using namespace rdf;
 using namespace std;
 
 // ----------------------------------------------------------------------------
+//	Universe
+// ----------------------------------------------------------------------------
+
+Universe &
+Universe::instance()
+{
+	static Universe universe;
+	return universe;
+}
+
+// ----------------------------------------------------------------------------
+
+World
+Universe::world( const std::string & name )
+{
+	auto wi = worlds.find( name );
+	if ( wi == worlds.end() )
+	{
+		World w( new _World );
+		worlds[name] = w;
+		return w;
+	}
+	else
+		return wi->second;
+}
+
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 //	_World
 // ----------------------------------------------------------------------------
 
@@ -59,9 +88,9 @@ _World::_World()
 }
 
 // ----------------------------------------------------------------------------
-
+/*
 _World &
-_World::instance()
+//_World::instance()
 {
 	//
 	// Thread safe instance creation.
@@ -71,7 +100,7 @@ _World::instance()
 
 	return theWorld;
 }
-
+*/
 // ----------------------------------------------------------------------------
 
 void 
@@ -84,7 +113,7 @@ _World::registerErrorClient( ErrorClient *client, bool warnings, bool errors )
 
 	if ( errors )
 	{
-		forWarnings.registerClient( client );
+		forErrors.registerClient( client );
 	}
 }
 

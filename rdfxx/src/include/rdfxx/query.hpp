@@ -48,6 +48,7 @@ class _Query : public Query_
 {
     // ------------------------------------------------------------------------
     private:
+    World world;
     librdf_query* query;
 
     // ------------------------------------------------------------------------
@@ -60,7 +61,7 @@ class _Query : public Query_
      *  @param uri The URI identifying the query language.
      *  @param lang The query language, defaults to "sparql".
      */
-    _Query(const std::string & _query_string, const std::string& _lang="sparql");
+    _Query( World, const std::string & _query_string, const std::string& _lang="sparql");
 
     //! RDF C++ Query constructor.
     /*! Initializes a new Query.
@@ -71,7 +72,7 @@ class _Query : public Query_
      *  @param base_uri A optional base URI.
      *  @param lang The query language, defaults to "sparql".
      */
-    _Query(const std::string & _query_string, URI _base_uri, const std::string& _lang="sparql");
+    _Query( World, const std::string & _query_string, URI _base_uri, const std::string& _lang="sparql");
 
     //! RDF C++ Query destructor.
     /*! Deletes the internally stored librdf_query object.

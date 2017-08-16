@@ -47,7 +47,7 @@ QueryResults_::iterator::iterator( QueryResult_* qr )
 // -----------------------------------------------------------------------------
 
 QueryResults_::iterator::iterator()
-	: query_result( new _QueryResult( nullptr ) )
+	: query_result( new _QueryResult)
 {
 }
 
@@ -135,7 +135,7 @@ _QueryResult::getBoundValue(int _offset) const
     }
 
     // The library returns a new node pointer so it will need to be freed
-    Node value( new _Node(librdf_query_results_get_binding_value(query_results, _offset), true));
+    Node value( new _Node(world, librdf_query_results_get_binding_value(query_results, _offset), true));
 
     if(!value)
 	throw VX(Error) << "Failed to allocate node";
@@ -163,7 +163,7 @@ _QueryResult::getBoundValue(const std::string & _name ) const
     }
 
     // The library returns a new node pointer so it will need to be freed
-    Node value( new _Node( n, true ));
+    Node value( new _Node( world, n, true ));
 
     if(!value)
 	throw VX(Error) << "Failed to allocate node";
@@ -236,8 +236,8 @@ _QueryResult::toString() const
 //	_QueryResults
 // -----------------------------------------------------------------------------
 
-_QueryResults::_QueryResults(_Query& _query, _Model& _model)
-	 : query_results(0)
+_QueryResults::_QueryResults(World w, _Query& _query, _Model& _model)
+	 : world(w), query_results(0)
 {
     query_results = librdf_query_execute(_query, _model);
     if(!query_results)
@@ -247,7 +247,7 @@ _QueryResults::_QueryResults(_Query& _query, _Model& _model)
     if ( status )
     	currIter = QueryResult( new _QueryResult );
     else
-    	currIter = QueryResult( new _QueryResult( query_results ));
+    	currIter = QueryResult( new _QueryResult( world, query_results ));
 }
 
 // -----------------------------------------------------------------------------
@@ -266,7 +266,7 @@ _QueryResults::~_QueryResults()
 std::string
 _QueryResults::toString()
 {
-    URI syntax_uri("http://www.w3.org/TR/2004/WD-rdf-sparql-XMLres-20041221/");
+    URI syntax_uri(world, "http://www.w3.org/TR/2004/WD-rdf-sparql-XMLres-20041221/");
     URI base_uri;
 
     return toString(syntax_uri, base_uri);

@@ -104,6 +104,7 @@ private:
 	// Storage store;
 	// Model model = Model_::make(memStore);
 
+	World world;
 	Model model;
 
 	// Possible path transformations.
@@ -129,7 +130,7 @@ private:
 		qs0.addCondition(string("<") + _class + "> a ?classType");
 		qs0.addCondition("FILTER isURI(?parentClass)");
 
-		Query q0(qs0);
+		Query q0(world, qs0);
 		QueryResults qr0 = q0->execute( model );
 
 		/* The end of a classification hierarchy corresponds to one directory 
@@ -172,7 +173,7 @@ private:
 		qs0.addCondition("?node a ?containerType");
 		qs0.addCondition("OPTIONAL { ?projection pp:projectionBaseFolder ?baseFolder }");
 
-    	Query q0(qs0);
+    	Query q0(world, qs0);
     	QueryResults qr0 = q0->execute( model );
 
 		// Multiple projections may occur for different projection types (Folder/File).
@@ -215,7 +216,7 @@ private:
 		qs0.addCondition(string("<") + _node + "> pp:nodeName [ ?li ?nameComponent ]");
 		qs0.addCondition("FILTER( ?li != rdf:type )");
 			
-		Query q0(qs0);
+		Query q0(world, qs0);
 		QueryResults qr0 = q0->execute( model );
 
 		// while(qr0->success())
@@ -235,7 +236,7 @@ private:
 					+ "> <" + nameComponent->toURI()->toString() 
 					+ "> ?propertyValue");
 
-				Query q1(qs1);
+				Query q1(world, qs1);
 				QueryResults qr1 = q1->execute( model );
 
 				// NOTE: Improve error handling.
@@ -261,7 +262,7 @@ private:
 			qs2.addCondition(string("?node nfo:belongsToContainer <") +  _node + ">");
 			qs2.addCondition(string("?node a <") + _containerType + ">");
 
-			Query q2(qs2);
+			Query q2(world, qs2);
 			QueryResults qr2 = q2->execute( model );
 
 			// while(qr2->success())
@@ -280,7 +281,7 @@ protected:
 
 	void parseRdfFile(URI _file)
 	{
-		Parser p("rdfxml");
+		Parser p(world, "rdfxml");
 		p->parseIntoModel(model, _file, _file);
 	}
 
@@ -292,7 +293,7 @@ protected:
 		qs0.addCondition(string("<") + fileProjection.getUri() + "> a ?fileType");
 		qs0.addCondition("FILTER (?fileType != <" PREFIX_NFO "FileDataObject>)");
 
-		Query q0(qs0);
+		Query q0(world, qs0);
 		QueryResults qr0 = q0->execute( model );
 
 		cout << "--- CLASS HIERARCHIES" << endl;
@@ -309,17 +310,18 @@ protected:
 public:
 
 	PathProjection(string _uri) :
-		model("memory"),
+		world(Universe::instance().world("Projection")),
+		model(world, "memory"),
 		fileProjection(_uri),
 		transformLowerCase(false),
 		transformUpperCase(false),
 		substituteWhitespace(false),
 		removeWhitespace(false)
 	{
-		parseRdfFile( URI("file:../../src/examples/model_projections.rdf"));
-		parseRdfFile( URI("file:../../src/examples/model_files.rdf"));
-		parseRdfFile( URI("file:../../src/examples/ontology_nfo.rdf"));
-		parseRdfFile( URI("file:../../src/examples/ontology_pub.rdf"));
+		parseRdfFile( URI(world, "file:../../src/examples/model_projections.rdf"));
+		parseRdfFile( URI(world, "file:../../src/examples/model_files.rdf"));
+		parseRdfFile( URI(world, "file:../../src/examples/ontology_nfo.rdf"));
+		parseRdfFile( URI(world, "file:../../src/examples/ontology_pub.rdf"));
 
 		computePathProjection();
 	}
@@ -379,7 +381,7 @@ int main(int _argc, char** _argv)
     try
     {
     	std::vector< std::string > parsers;
-    	Parser_::listParsers( parsers );
+    	Parser_::listParsers( Universe::instance().world("Projection"), parsers );
 	for( auto &x : parsers )
 	{
 		cout << x << endl;

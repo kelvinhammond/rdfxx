@@ -62,7 +62,7 @@ class _URI : public URI_
      *
      *  @param uri A URI string.
      */
-    _URI(const char* _uri);
+    _URI( World, const char* _uri);
 
     _URI( librdf_uri * );
 
@@ -76,7 +76,7 @@ class _URI : public URI_
     //! Set the URI string.
     /*! Note: This allocates a new librdf_uri object.
      */ 
-    void set_string(const char* _uri_string);
+    void set_string( World, const char* _uri_string);
 
     //! Get the URI as string.
     /*! 

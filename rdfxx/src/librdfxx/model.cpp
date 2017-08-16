@@ -42,9 +42,9 @@ Model::Model( Model_* _model )
 
 // -----------------------------------------------------------------------------
 
-Model::Model( const std::string & _storage_type, const std::string & _storage_name,
+Model::Model( World w, const std::string & _storage_type, const std::string & _storage_name,
                 const std::string & _storage_options, const std::string & _model_options )
-	: std::shared_ptr< Model_ >( new _Model( _storage_type, _storage_name, 
+	: std::shared_ptr< Model_ >( new _Model( w, _storage_type, _storage_name, 
 			_storage_options, _model_options ))
 {
 }
@@ -55,7 +55,7 @@ Model::Model( const std::string & _storage_type, const std::string & _storage_na
 /*
 _Model::_Model(Storage _storage, const string & _options)
 {
-    _World& world = _World::instance();
+    //_World& world = _World::instance();
     librdf_storage* st = DEREF( Storage, librdf_storage, _storage );
 
     // Get a pointer to a model. We control its lifetime. 
@@ -66,18 +66,19 @@ _Model::_Model(Storage _storage, const string & _options)
 */
 // -----------------------------------------------------------------------------
 
-_Model::_Model( const std::string & _storage_type, const std::string & _storage_name,
+_Model::_Model( World _w, const std::string & _storage_type, const std::string & _storage_name,
                 const std::string & _storage_options, const std::string & _model_options )
 {
-    _World& world = _World::instance();
+    //_World& world = _World::instance();
+    librdf_world*w = DEREF( World, librdf_world, _w);
 
-    storage = librdf_new_storage(world,  _storage_type.c_str(), 
+    storage = librdf_new_storage(w,  _storage_type.c_str(), 
     			 _storage_name.c_str(),  _storage_options.c_str());
     if(!storage)
 	throw VX(Error) << "Failed to allocate storage";
 
     // Get a pointer to a model. We control its lifetime. 
-    model = librdf_new_model(world, storage, _model_options.c_str());
+    model = librdf_new_model(w, storage, _model_options.c_str());
     if(!model)
 	throw VX(Error) << "Failed to allocate model";
 }

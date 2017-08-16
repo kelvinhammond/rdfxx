@@ -49,8 +49,8 @@ URI::URI(URI_* _uri)
 
 // -----------------------------------------------------------------------------
 
-URI::URI( const std::string & _uri )
-	: std::shared_ptr< URI_ >( new _URI( _uri.c_str() ))
+URI::URI( World w, const std::string & _uri )
+	: std::shared_ptr< URI_ >( new _URI( w, _uri.c_str() ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -63,10 +63,10 @@ _URI::_URI()
 
 // -----------------------------------------------------------------------------
 
-_URI::_URI(const char* _uri_string)
+_URI::_URI(World w, const char* _uri_string)
 	 : uri(0)
 {
-	set_string( _uri_string );
+	set_string(w, _uri_string );
 }
 
 // -----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ _URI::copy() const
 
 // -----------------------------------------------------------------------------
 void
-_URI::set_string(const char* _uri_string)
+_URI::set_string(World _w, const char* _uri_string)
 {
     if(uri)
     {
@@ -108,9 +108,11 @@ _URI::set_string(const char* _uri_string)
 	uri = 0;
     }
     
-    _World & world = _World::instance();
+    // _World & world = _World::instance();
 
-    uri = librdf_new_uri(world, (const unsigned char*) _uri_string);
+    librdf_world* w = DEREF( World, librdf_world, _w);
+
+    uri = librdf_new_uri(w, (const unsigned char*) _uri_string);
     if(!uri)
 	throw VX(Error) << "Failed to allocate URI";
 }

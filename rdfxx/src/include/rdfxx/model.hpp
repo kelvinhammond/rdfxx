@@ -60,7 +60,7 @@ class _Model : public Model_
      *  @param options See Redland documentation for valid options.
      */
     //_Model(Storage _storage, const std::string & _options="");
-    _Model( const std::string & _storage_type, const std::string & _storage_name = "",
+    _Model( World, const std::string & _storage_type, const std::string & _storage_name = "",
     		const std::string & _storage_options = "", const std::string & _model_options = "" );
 
     //! RDF C++ Model copy constructor.

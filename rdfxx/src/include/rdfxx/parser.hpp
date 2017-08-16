@@ -53,7 +53,7 @@ class _Parser : public Parser_
      *  @param _name Parsing engine name. See Redland documentation for details.
      *  @param _syntax_mime MIME type of syntax, defaults to RDF/XML.
      */
-    _Parser(const std::string & _name, const std::string & _syntax_mime="");
+    _Parser( World, const std::string & _name, const std::string & _syntax_mime="");
 
     //! RDF C++ Parser constructor.
     /*! Initializes a new RDF Parser.
@@ -62,7 +62,7 @@ class _Parser : public Parser_
      *  @param _name Parsing engine name. See Redland documentation for details.
      *  @param _syntax_uri URI to be parsed, can be ommitted.
      */
-    _Parser(const std::string & _name, URI _syntax_uri);
+    _Parser( World, const std::string & _name, URI _syntax_uri);
 
 	bool parseIntoModel(Model model, URI uri, URI base_uri);
 

@@ -15,7 +15,11 @@ Future
 	* Datatypes
 	* Edges
 	* Submodels
-	* Unit Test Harness
+	* Worlds
+
+2017-08-16	Brenton Ross
+
+	* all: Unit Test Harness and bug-fixes from tests.
 
 2017-08-04	Brenton Ross
 

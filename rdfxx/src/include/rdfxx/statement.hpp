@@ -45,6 +45,7 @@ namespace rdf
 class _Statement : public Statement_
 {
  private:
+    World world;
     librdf_statement* statement;
     
     // keep shared pointers so that returned weak pointer remains valid
@@ -57,7 +58,7 @@ class _Statement : public Statement_
     
  public:
     // Create new empty statement
-    _Statement();
+    _Statement( World );
 
     //! RDF C++ Statement constructor. Initializes a new RDF Statement.
     /*! Throws AllocationError if allocation/initialization failed.
@@ -66,7 +67,7 @@ class _Statement : public Statement_
      *  @param predicate RDF C++ Node object reference.
      *  @param object RDF C++ Node object reference.
      */
-    _Statement(Node subject, Node predicate, Node object);
+    _Statement(World, Node subject, Node predicate, Node object);
 
     //! RDF C++ Statement copy-constructor.
     /*! Makes a completecopy of a RDF C++ Statement object.

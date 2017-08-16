@@ -38,7 +38,13 @@ using namespace std;
 // -----------------------------------------------------------------------------
 
 Stream::Stream()
-	: std::shared_ptr< Stream_ >( new _Stream )
+	: std::shared_ptr< Stream_ >( nullptr )
+{}
+
+// -----------------------------------------------------------------------------
+
+Stream::Stream( World w )
+	: std::shared_ptr< Stream_ >( new _Stream( w ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -57,10 +63,11 @@ Stream::Stream( Stream_ * _stream )
 //	_Stream
 // -----------------------------------------------------------------------------
 
-_Stream::_Stream()
+_Stream::_Stream( World _w )
 	 : stream(0), currStatement(nullptr)
 {
-    _World & world = _World::instance();
+    // _World & world = _World::instance();
+    librdf_world*world = DEREF( World, librdf_world, _w );
 
     stream = librdf_new_empty_stream(world);
     if(!stream)
@@ -69,7 +76,7 @@ _Stream::_Stream()
 
 // -----------------------------------------------------------------------------
 
-_Stream::_Stream(Parser _parser, URI _uri, URI _base)
+_Stream::_Stream( Parser _parser, URI _uri, URI _base)
 	 : stream(0), currStatement(nullptr)
 {
     librdf_parser *p = DEREF( Parser, librdf_parser, _parser );

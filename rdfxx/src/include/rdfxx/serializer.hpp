@@ -54,7 +54,7 @@ class _Serializer : public Serializer_
      *  @param _name Factory name. See Redland documentation for details.
      *  @param _syntax_mime MIME type of syntax.
      */
-    _Serializer(const std::string& _name="rdfxml", const std::string& _syntax_mime="");
+    _Serializer( World, const std::string& _name="rdfxml", const std::string& _syntax_mime="");
 
     //! RDF C++ Serializer constructor.
     /*! Initializes a new RDF Serializer.
@@ -63,7 +63,7 @@ class _Serializer : public Serializer_
      *  @param _name Factory name. See Redland documentation for details.
      *  @param _syntax_uri URI of syntax.
      */
-    _Serializer(const std::string& _name, URI _syntax_uri);
+    _Serializer( World, const std::string& _name, URI _syntax_uri);
 
     //! RDF C++ Serializer destructor.
 	/*! Deletes the internally stored librdf_serializer object.

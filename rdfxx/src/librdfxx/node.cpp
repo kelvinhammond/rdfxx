@@ -37,7 +37,13 @@ using namespace std;
 // -----------------------------------------------------------------------------
 
 Node::Node()
-	: std::shared_ptr< Node_ >( new _Node )
+	: std::shared_ptr< Node_ >( nullptr )
+{}
+
+// -----------------------------------------------------------------------------
+
+Node::Node( World w )
+	: std::shared_ptr< Node_ >( new _Node( w ) )
 {}
 
 // -----------------------------------------------------------------------------
@@ -48,21 +54,21 @@ Node::Node( Node_* _node )
 
 // -----------------------------------------------------------------------------
 
-Node::Node( URI _uri )
-	: std::shared_ptr< Node_ >( new _Node( _uri ) )
+Node::Node( World w, URI _uri )
+	: std::shared_ptr< Node_ >( new _Node( w, _uri ) )
 {}
 
 // -----------------------------------------------------------------------------
 
-Node::Node( const std::string & uri )
-	: std::shared_ptr< Node_ >( new _Node(uri) )
+Node::Node( World w, const std::string & uri )
+	: std::shared_ptr< Node_ >( new _Node(w, uri) )
 {}
 
 // -----------------------------------------------------------------------------
 
-Node::Node(const std::string & literal, bool _is_wf_xml,
+Node::Node(World w, const std::string & literal, bool _is_wf_xml,
                         const std::string & xml_language )
-	: std::shared_ptr< Node_ >( new _Node( literal.c_str(), _is_wf_xml, 
+	: std::shared_ptr< Node_ >( new _Node( w, literal.c_str(), _is_wf_xml, 
 			xml_language.c_str() ))
 {}
 
@@ -76,88 +82,93 @@ Node::Node( NodeRef _ref )
 //	_Node
 // -----------------------------------------------------------------------------
 
-_Node::_Node()
-	 : node(0), free(true)
+_Node::_Node( World _w)
+	 : world(_w), node(0), free(true)
 {
-    _World& world = _World::instance();
+    	// _World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
 
-    // Create a node. User controls its lifetime.
-    node = librdf_new_node(world);
-    if(!node)
-	throw VX(Error) << "Failed to allocate node";
+    	// Create a node. User controls its lifetime.
+    	node = librdf_new_node(w);
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node(const _Node & _node)
-	 : free(true)
+_Node::_Node( const _Node & _node)
+	 : world(_node.world), free(true)
 {
-    // Create a new node as a copy. User controls its lifetime.
-    node = librdf_new_node_from_node(_node.node);
-    if(!node)
-	throw VX(Error) << "Failed to allocate node";
+    	// Create a new node as a copy. User controls its lifetime.
+    	node = librdf_new_node_from_node(_node.node);
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node(const string & _uri)
-	 : node(0), free(true)
+_Node::_Node(World _w, const string & _uri)
+	 : world(_w), node(0), free(true)
 {
-    _World& world = _World::instance();
+    	//_World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
 
-    // Create a new node. User controls lifetime.
-    node = librdf_new_node_from_uri_string(world, (const unsigned char*) _uri.c_str());
-    if(!node)
-	throw VX(Error) << "Failed to allocate node";
+    	// Create a new node. User controls lifetime.
+    	node = librdf_new_node_from_uri_string(w, (const unsigned char*) _uri.c_str());
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node(const char* _uri)
-	 : node(0), free(true)
+_Node::_Node(World _w, const char* _uri)
+	 : world(_w), node(0), free(true)
 {
-    _World& world = _World::instance();
+    	//_World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
 
-    // Create a new node. User controls lifetime.
-    node = librdf_new_node_from_uri_string(world, (const unsigned char*) _uri);
-    if(!node)
-	throw VX(Error) << "Failed to allocate node";
+    	// Create a new node. User controls lifetime.
+    	node = librdf_new_node_from_uri_string(w, (const unsigned char*) _uri);
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node( URI _uri)
-	 : node(0), free(true)
+_Node::_Node( World _w, URI _uri)
+	 : world(_w), node(0), free(true)
 {
-    _World& world = _World::instance();
-    librdf_uri *uri = DEREF( URI, librdf_uri, _uri );
+    	// _World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
+    	librdf_uri *uri = DEREF( URI, librdf_uri, _uri );
 
-    // Create a new node. User controls lifetime.
-    node = librdf_new_node_from_uri(world, uri);
-    if(!node)
-	throw VX(Error) << "Failed to allocate node";
+    	// Create a new node. User controls lifetime.
+    	node = librdf_new_node_from_uri(w, uri);
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node(const char* _literal, bool _is_wf_xml, const char* _xml_language)
-	 : node(0), free(true)
+_Node::_Node( World _w, const char* _literal, bool _is_wf_xml, const char* _xml_language)
+	 : world(_w), node(0), free(true)
 {
-    _World& world = _World::instance();
+    	// _World& world = _World::instance();
 
+	librdf_world *w = DEREF( World, librdf_world, _w );
 	int is_wf_xml = (_is_wf_xml) ? 1 : 0;
 
-    // Create a new node. User controls lifetime.
-    node = librdf_new_node_from_literal(world, (const unsigned char*) _literal, 
+    	// Create a new node. User controls lifetime.
+    	node = librdf_new_node_from_literal(w, (const unsigned char*) _literal, 
     			_xml_language, is_wf_xml);
-    if(!node)
-	throw VX(Error) << "Failed to allocate node";
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node(librdf_node* _node, bool freeOnDelete)
-	 : node(0), free(freeOnDelete)
+_Node::_Node(World w, librdf_node* _node, bool freeOnDelete)
+	 : world(w), node(0), free(freeOnDelete)
 {
     if(!_node)
     {
@@ -193,7 +204,8 @@ _Node::toString() const
 	string s;
 	char *str = NULL;
 	size_t len = 2;
-	raptor_world * rw = librdf_world_get_raptor(_World::instance());
+	librdf_world *w = DEREF( World, librdf_world, world );
+	raptor_world * rw = librdf_world_get_raptor(w);
 	if ( rw )
 	{
 		raptor_iostream *stream = raptor_new_iostream_to_string(rw, (void**)& str, &len, malloc );

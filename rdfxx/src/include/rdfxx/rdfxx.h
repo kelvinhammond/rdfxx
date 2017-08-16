@@ -80,7 +80,7 @@ class URI : public std::shared_ptr< URI_ >
 public:
 	URI();
 	URI( URI_* );
-	URI(  const std::string & );
+	URI( World,  const std::string & );
 
 	// TODO - construct from filename
 	// TODO - construct relative to base URI
@@ -124,7 +124,7 @@ public:
 	// 		"file", "memory", "hashes", "sqlite"
 	// storage_name - an identifier, eg filename or database name
 	// options - whatever needed for initialisation
-	Model( const std::string & storage_type,
+	Model( World, const std::string & storage_type,
 		  const std::string & storage_name = "",
 		  const std::string & storage_options = "",
 		  const std::string & model_options = "" );
@@ -136,14 +136,15 @@ class Node : public std::shared_ptr< Node_ >
 {
 public:
 	Node();
+	Node( World );
 	Node( Node_* );
 	Node( NodeRef );
-	Node( URI );
-	Node( const std::string & uri );
+	Node( World, URI );
+	Node( World, const std::string & uri );
 
 	// _is_wf_xml - true if its well formed XML
 	// don't set _is_wf_xml true and have xml_language defined
-	Node( const std::string & literal, bool _is_wf_xml,
+	Node( World, const std::string & literal, bool _is_wf_xml,
 			const std::string & xml_language = "" );
 };
 
@@ -153,7 +154,8 @@ class Statement : public std::shared_ptr< Statement_ >
 {
 public:
 	Statement();
-	Statement(Node subject, Node predicate, Node object);
+	Statement(World);
+	Statement(World, Node subject, Node predicate, Node object);
 	Statement( Statement_* );
 	Statement( StatementRef );
 };
@@ -168,10 +170,10 @@ public:
 	// Use listParsers() to get names.
 	// Empty string for default.
 	//
-	Parser( const std::string & name,
+	Parser( World, const std::string & name,
 	        const std::string & syntax_mime = std::string() );
 	
-	Parser( const std::string & name, URI syntax_uri );
+	Parser( World, const std::string & name, URI syntax_uri );
 };
 
 // ---------------------------------------------------------------
@@ -179,9 +181,9 @@ public:
 class Serializer : public std::shared_ptr< Serializer_ >
 {
 public:
-	Serializer( const std::string & name = "rdfxml",
+	Serializer( World, const std::string & name = "rdfxml",
 			const std::string & syntax_mime = "" );
-	Serializer( const std::string & name, URI syntax_uri );
+	Serializer( World, const std::string & name, URI syntax_uri );
 };
 
 // ---------------------------------------------------------------
@@ -190,6 +192,7 @@ class Stream : public std::shared_ptr< Stream_ >
 {
 public:
 	Stream();
+	Stream( World );
 	Stream( Stream_* );
 	Stream( Parser, URI, URI base );
 };
@@ -199,9 +202,9 @@ public:
 class Query : public std::shared_ptr< Query_ >
 {
 public:
-	Query( const std::string & query, const std::string & lang = "sparql" );
+	Query( World, const std::string & query, const std::string & lang = "sparql" );
 
-	Query( const std::string & query, URI base_uri, const std::string & lang = "sparql" );
+	Query( World, const std::string & query, URI base_uri, const std::string & lang = "sparql" );
 };
 
 // ---------------------------------------------------------------
@@ -226,11 +229,23 @@ public:
 //
 // ---------------------------------------------------------------
 
+class Universe
+{
+private:
+	Universe(){}
+	std::map< std::string, World > worlds;
+public:
+	static Universe& instance();
+	World world( const std::string & name );
+};
+
+// ---------------------------------------------------------------
+
 class World_
 {
 public:
 	virtual ~World_(){}
-	static World instance();
+	// static World instance();
 	virtual void registerErrorClient( ErrorClient *, bool warnings, bool errors ) = 0;
 };
 
@@ -294,7 +309,7 @@ public:
 	virtual bool parseIntoModel( Model, URI uri, URI base_uri ) = 0;
 
 	// Get a list of parser names with their syntax URIs
-	static int listParsers( std::vector< std::string > & );
+	static int listParsers( World, std::vector< std::string > & );
 };
 
 // ---------------------------------------------------------------

@@ -48,11 +48,13 @@ class _QueryResults;
 class _QueryResult : public QueryResult_
 {
 private:
+	World world;
 	librdf_query_results* query_results;
 	mutable int numberBound;
 public:
 	_QueryResult() : query_results(nullptr), numberBound(-1) {}
-	_QueryResult( librdf_query_results *qr ) : query_results(qr), numberBound(-1) {}
+	_QueryResult( World w, librdf_query_results *qr ) 
+		: world(w), query_results(qr), numberBound(-1) {}
 
 	virtual int  count() const;
 	virtual std::string getBoundName(int offset) const;
@@ -73,6 +75,7 @@ using QueryResult = std::shared_ptr< _QueryResult >;
 class _QueryResults : public QueryResults_
 {
     QueryResult currIter;
+    World world;
 
     // ------------------------------------------------------------------------
     private:
@@ -86,7 +89,7 @@ class _QueryResults : public QueryResults_
      *  @param _query The query to execute.
      *  @param _model The model to query. 
      */
-    _QueryResults(_Query& _query, _Model& _model);
+    _QueryResults(World, _Query& _query, _Model& _model);
 
     //! RDF C++ QueryResults destructor.
     /*! Deletes the internally stored librdf_query_results object.

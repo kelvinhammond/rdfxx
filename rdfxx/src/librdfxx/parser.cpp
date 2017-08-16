@@ -38,24 +38,25 @@ using namespace std;
 //	Parser
 // -----------------------------------------------------------------------------
 
-Parser::Parser( const std::string & name, const std::string & syntax_mime )
-	: std::shared_ptr< Parser_ >( new _Parser(name, syntax_mime))
+Parser::Parser( World w, const std::string & name, const std::string & syntax_mime )
+	: std::shared_ptr< Parser_ >( new _Parser(w, name, syntax_mime))
 {}
 
 // -----------------------------------------------------------------------------
 
-Parser::Parser( const std::string & name, URI syntax_uri )
-	: std::shared_ptr< Parser_ >( new _Parser( name, syntax_uri ))
+Parser::Parser( World w, const std::string & name, URI syntax_uri )
+	: std::shared_ptr< Parser_ >( new _Parser( w, name, syntax_uri ))
 {}
 
 // -----------------------------------------------------------------------------
 //	_Parser
 // -----------------------------------------------------------------------------
 
-_Parser::_Parser(const std::string& _name, const std::string& _syntax_mime)
+_Parser::_Parser( World _w, const std::string& _name, const std::string& _syntax_mime)
 	 : parser(0)
 {
-    _World& world = _World::instance();
+    // _World& world = _World::instance();
+    	librdf_world* world = DEREF( World, librdf_world, _w);
 
     parser = librdf_new_parser(world, _name.c_str(), _syntax_mime.c_str(), 0);
     if(!parser)
@@ -64,10 +65,11 @@ _Parser::_Parser(const std::string& _name, const std::string& _syntax_mime)
 
 // -----------------------------------------------------------------------------
 
-_Parser::_Parser(const std::string& _name, URI _syntax_uri)
+_Parser::_Parser( World _w, const std::string& _name, URI _syntax_uri)
 	 : parser(0)
 {
-    _World& world = _World::instance();
+    // _World& world = _World::instance();
+    	librdf_world* world = DEREF( World, librdf_world, _w);
     librdf_uri *uri = DEREF( URI, librdf_uri, _syntax_uri );
 
     parser = librdf_new_parser(world, _name.c_str(), 0, uri);
@@ -107,9 +109,9 @@ _Parser::operator librdf_parser*()
 // -----------------------------------------------------------------------------
 
 //static
-int Parser_::listParsers( std::vector< std::string > & parsers )
+int Parser_::listParsers( World _w, std::vector< std::string > & parsers )
 {
-    	librdf_world* world = _World::instance();
+    	librdf_world* world = DEREF( World, librdf_world, _w);
 	int counter = 0;  // guess it starts at zero
 	while( true )
 	{
