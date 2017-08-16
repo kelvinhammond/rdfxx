@@ -101,7 +101,7 @@ class PathProjection
 private:
 
 	// MemoryStore model;
-	Storage store;
+	// Storage store;
 	// Model model = Model_::make(memStore);
 
 	Model model;
@@ -309,8 +309,7 @@ protected:
 public:
 
 	PathProjection(string _uri) :
-		store("memory"),
-		model(store),
+		model("memory"),
 		fileProjection(_uri),
 		transformLowerCase(false),
 		transformUpperCase(false),

@@ -12,7 +12,9 @@ Future
 	* RDFS concepts
 	* Postgresql storage
 	* Prefixes and namespaces
+	* Datatypes
 	* Edges
+	* Submodels
 	* Unit Test Harness
 
 2017-08-04	Brenton Ross

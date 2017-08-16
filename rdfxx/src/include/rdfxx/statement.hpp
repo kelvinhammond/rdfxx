@@ -56,6 +56,9 @@ class _Statement : public Statement_
     bool free;
     
  public:
+    // Create new empty statement
+    _Statement();
+
     //! RDF C++ Statement constructor. Initializes a new RDF Statement.
     /*! Throws AllocationError if allocation/initialization failed.
      *

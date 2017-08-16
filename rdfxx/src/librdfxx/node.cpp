@@ -48,8 +48,8 @@ Node::Node( Node_* _node )
 
 // -----------------------------------------------------------------------------
 
-Node::Node( URI )
-	: std::shared_ptr< Node_ >( new _Node )
+Node::Node( URI _uri )
+	: std::shared_ptr< Node_ >( new _Node( _uri ) )
 {}
 
 // -----------------------------------------------------------------------------
@@ -126,13 +126,14 @@ _Node::_Node(const char* _uri)
 
 // -----------------------------------------------------------------------------
 
-_Node::_Node( const _URI& _uri)
+_Node::_Node( URI _uri)
 	 : node(0), free(true)
 {
     _World& world = _World::instance();
+    librdf_uri *uri = DEREF( URI, librdf_uri, _uri );
 
     // Create a new node. User controls lifetime.
-    node = librdf_new_node_from_uri(world, _uri);
+    node = librdf_new_node_from_uri(world, uri);
     if(!node)
 	throw VX(Error) << "Failed to allocate node";
 }

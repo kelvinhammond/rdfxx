@@ -50,14 +50,14 @@ _Storage::_Storage(const std::string& _storage_name, const std::string& _name,
 			const std::string& _options)
 	 : storage(0), model(nullptr)
 {
-    cout << "Creating storage in " << _storage_name << endl;
+    // cout << "Creating storage in " << _storage_name << endl;
     _World& world = _World::instance();
 
     storage = librdf_new_storage(world,  _storage_name.c_str(), 
     			 _name.c_str(),  _options.c_str());
     if(!storage)
 	throw VX(Error) << "Failed to allocate storage";
-    cout << "Created storage " << _storage_name << endl;
+    // cout << "Created storage " << _storage_name << endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ _Storage::~_Storage()
 // -----------------------------------------------------------------------------
 
 bool
-_Storage::open(Model _model)
+_Storage::open(Model & _model)
 {
     // If there is already a model assigned, destroy it.
     if(model)

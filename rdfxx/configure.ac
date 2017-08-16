@@ -31,10 +31,12 @@ AC_SUBST([XML_LIBS])
 
 AC_CONFIG_FILES([
 	Makefile
+	sassy-check.xml
 	src/Makefile
 	src/include/Makefile
 	src/include/rdfxx/Makefile
 	src/librdfxx/Makefile
+	src/tests/Makefile
 	src/examples/Makefile
 	])
 

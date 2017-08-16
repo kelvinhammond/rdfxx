@@ -54,7 +54,7 @@ class Query_;
 class QueryResults_;
 class Serializer_;
 class Statement_;
-class Storage_;
+// class Storage_;
 class Stream_;
 class URI_;
 
@@ -81,13 +81,19 @@ public:
 	URI();
 	URI( URI_* );
 	URI(  const std::string & );
+
+	// TODO - construct from filename
+	// TODO - construct relative to base URI
 };
 
 // ---------------------------------------------------------------
-
+/*
 class Storage : public std::shared_ptr< Storage_ >
 {
 public:
+	// create an empty shared pointer
+	Storage() : std::shared_ptr< Storage_ >( nullptr ) {}
+
 	// storage_name - name of storage factory
 	// 		"file", "memory", "hashes", "sqlite"
 	// name - an identifier, eg filename or database name
@@ -96,12 +102,15 @@ public:
 		  const std::string & name = "",
 		  const std::string & options = "" );
 };
-
+*/
 // ---------------------------------------------------------------
 
 class Model : public std::shared_ptr< Model_ >
 {
 public:
+	// create an empty model
+	Model() : std::shared_ptr< Model_ >( nullptr ) {}
+
 	// replicate shared_ptr<> constructor
 	Model( Model_* );
 
@@ -111,10 +120,14 @@ public:
 	// Options: Apparently in the format of XML attributes.
 	// 	    It is not documented as to what they are or how they are used.
 	//
-	Model( Storage _storage, const std::string &options = "");
-	
-	// New empty model
-	Model();
+	// storage_type - name of storage factory
+	// 		"file", "memory", "hashes", "sqlite"
+	// storage_name - an identifier, eg filename or database name
+	// options - whatever needed for initialisation
+	Model( const std::string & storage_type,
+		  const std::string & storage_name = "",
+		  const std::string & storage_options = "",
+		  const std::string & model_options = "" );
 };
 
 // ---------------------------------------------------------------
@@ -127,6 +140,9 @@ public:
 	Node( NodeRef );
 	Node( URI );
 	Node( const std::string & uri );
+
+	// _is_wf_xml - true if its well formed XML
+	// don't set _is_wf_xml true and have xml_language defined
 	Node( const std::string & literal, bool _is_wf_xml,
 			const std::string & xml_language = "" );
 };
@@ -136,6 +152,7 @@ public:
 class Statement : public std::shared_ptr< Statement_ >
 {
 public:
+	Statement();
 	Statement(Node subject, Node predicate, Node object);
 	Statement( Statement_* );
 	Statement( StatementRef );
@@ -226,7 +243,7 @@ public:
 	virtual ~Model_(){}
 
 	// create an independent copy of the model
-	virtual Model copy() = 0;
+	// virtual Model copy() = 0;
 
 	// Get number of statements if possible. May return <0 if not known.
 	virtual int size() const = 0;
@@ -243,6 +260,8 @@ public:
 	virtual bool contains( Statement )const = 0;
 
 	// TODO - lots of useful functions for navigating the graph.
+	
+	// TODO - add and remove sub-models
 };
 
 // ---------------------------------------------------------------
@@ -259,7 +278,11 @@ public:
 	virtual bool isLiteral() const = 0;
 	virtual bool isBlank() const = 0;
 	virtual bool isResource() const = 0;
+
+	// TODO operator ==
 };
+// TODO operator == (Node, Node)
+// TODO operator << ( ostream &, Node )
 
 // ---------------------------------------------------------------
 
@@ -366,6 +389,7 @@ public:
 	virtual bool setNamespace( URI, const std::string & prefix ) = 0;
 	virtual bool toFile( const std::string &filename, Model ) = 0;
 	virtual bool toFile( const std::string &filename, Model, URI base_uri ) = 0;
+	// TODO static int listSerializers( std::vector< std::string > & );
 };
 
 // ---------------------------------------------------------------
@@ -393,18 +417,28 @@ public:
 };
 
 bool operator == ( Statement, Statement );
+// TODO operator << ( ostream &, Node )
 
 // ---------------------------------------------------------------
 
+/*
 class Storage_
 {
 public:
 	virtual ~Storage_() {}
 
 	// create association with a model
-	virtual bool open( Model ) = 0;
+	// has the effect of moving the model to this store
+	// This seems ineffective  - I think its for internal use
+	// when a model is constructed.
+	//
+	virtual bool open( Model & ) = 0;
 	virtual bool close() = 0;
 
+	//
+	// TODO - why do we need these methods since the Model
+	// should be used to perform these actions ?
+	//
 	virtual int size() = 0;  // <0 if cannot be determined
 
 	// Add statements from a stream 
@@ -415,6 +449,7 @@ public:
 	virtual bool update( Statement old, Statement _new ) = 0;
 	virtual bool contains( Statement ) = 0;
 };
+*/
 
 // ---------------------------------------------------------------
 
@@ -442,9 +477,13 @@ public:
 	virtual URI copy() const = 0;
 	virtual std::string toString() const = 0;
 	virtual bool operator == (URI)const = 0;
+
+	// TODO - test for file name
+	// TODO - convert to file name
 };
 
 bool operator == ( URI, URI );
+// TODO operator << ( ostream &, Node )
 
 // ---------------------------------------------------------------
 

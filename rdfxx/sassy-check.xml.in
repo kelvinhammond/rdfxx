@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SASSY-CONFIG>
+	<!-- This file is for testing the rdfxx software prior to installation -->
+	<config/>
+	<PlugIns/>
+	<LOG>
+		<!--
+		<SASSY-LOG>
+			<type>file</type>
+			<file>/tmp/test.log</file>
+		</SASSY-LOG>
+		<TRACE-LOG>
+			<type>trace</type>
+			<file>/tmp/trace.log</file>
+		</TRACE-LOG>
+		-->
+		<TestLog>
+			<type>unformatted</type>
+			<file>/tmp/test.log</file>
+		</TestLog>
+	</LOG>
+	<!--
+	<Trace>
+		<logName>TRACE-LOG</logName>
+		<default>10</default>
+		<lex.cpp>5</lex.cpp>
+	</Trace>
+	-->
+	<Test>
+		<librdfxx>
+			<Report><name>TestLog</name></Report>
+			<TestData>@abs_top_srcdir@/src/tests/rdfs_app_a_1.rdf</TestData>
+			<TestData>@abs_top_srcdir@/src/tests/rdfs_2.3.2.1_1.rdf</TestData>
+			<TestData>@abs_top_srcdir@/src/tests/rdfs_2.3.3.1_1.rdf</TestData>
+			<TestData>@abs_top_srcdir@/src/tests/rdfs_3.2_1.rdf</TestData>
+			<TestData>@abs_top_srcdir@/src/tests/rdfs_7.1_1.rdf</TestData>
+			<TestData>@abs_top_srcdir@/src/tests/rdfs_7.2_1.rdf</TestData>
+		</librdfxx>
+	</Test>
+</SASSY-CONFIG>

@@ -42,22 +42,17 @@ Model::Model( Model_* _model )
 
 // -----------------------------------------------------------------------------
 
-Model::Model( Storage _storage, const std::string &options)
-	: std::shared_ptr< Model_ >( new _Model( _storage, options ))
-{
-}
-
-// -----------------------------------------------------------------------------
-
-Model::Model()
-	: std::shared_ptr< Model_ >( new _Model )
+Model::Model( const std::string & _storage_type, const std::string & _storage_name,
+                const std::string & _storage_options, const std::string & _model_options )
+	: std::shared_ptr< Model_ >( new _Model( _storage_type, _storage_name, 
+			_storage_options, _model_options ))
 {
 }
 
 // -----------------------------------------------------------------------------
 //	_Model
 // -----------------------------------------------------------------------------
-
+/*
 _Model::_Model(Storage _storage, const string & _options)
 {
     _World& world = _World::instance();
@@ -68,9 +63,27 @@ _Model::_Model(Storage _storage, const string & _options)
     if(!model)
 	throw VX(Error) << "Failed to allocate model";
 }
-
+*/
 // -----------------------------------------------------------------------------
 
+_Model::_Model( const std::string & _storage_type, const std::string & _storage_name,
+                const std::string & _storage_options, const std::string & _model_options )
+{
+    _World& world = _World::instance();
+
+    storage = librdf_new_storage(world,  _storage_type.c_str(), 
+    			 _storage_name.c_str(),  _storage_options.c_str());
+    if(!storage)
+	throw VX(Error) << "Failed to allocate storage";
+
+    // Get a pointer to a model. We control its lifetime. 
+    model = librdf_new_model(world, storage, _model_options.c_str());
+    if(!model)
+	throw VX(Error) << "Failed to allocate model";
+}
+
+// -----------------------------------------------------------------------------
+/*
 _Model::_Model(const _Model & _model)
 {
     cout << "creating copy of model" << endl;
@@ -80,6 +93,7 @@ _Model::_Model(const _Model & _model)
     if(!model)
 	throw VX(Error) << "Failed to allocate model";
 }
+*/
 
 // -----------------------------------------------------------------------------
 
@@ -88,18 +102,22 @@ _Model::~_Model()
     if(model)
     {
         librdf_free_model(model);
-        // model = 0; // model become inaccessible, so no need to zero it
+    }
+
+    if(storage)
+    {
+        librdf_free_storage(storage);
     }
 }
 
 // -----------------------------------------------------------------------------
-
+/*
 Model
 _Model::copy()
 {
 	return Model( new _Model( *this ));
 }
-
+*/
 // -----------------------------------------------------------------------------
 
 int

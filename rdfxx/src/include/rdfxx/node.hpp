@@ -89,7 +89,7 @@ class _Node : public Node_
      *
      *  @param uri A URI object.
      */
-    _Node(const _URI& _uri);
+    _Node( URI _uri);
 
     //! RDF C++ Node constructor.
     /*! Initializes a new Node object with a given URI.

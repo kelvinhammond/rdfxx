@@ -77,7 +77,7 @@ class _Storage : public Storage_
      *  @param model A RDF C++ Model object.
      *  @return False on failure.
      */ 
-    bool open(Model _model);
+    bool open(Model & _model);
 
     //! Close a storage/model association.
     /*!

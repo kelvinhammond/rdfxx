@@ -47,6 +47,8 @@ class _URI : public URI_
 {
     protected:
     librdf_uri* uri;
+    _URI( const _URI & ) = delete;
+    void operator = ( const _URI & ) = delete;
 
     public:
     //! RDF C++ URI constructor.

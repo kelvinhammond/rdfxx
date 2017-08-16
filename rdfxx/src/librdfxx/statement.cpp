@@ -38,6 +38,12 @@ using namespace std;
 //	Statement
 // -----------------------------------------------------------------------------
 
+Statement::Statement()
+	: std::shared_ptr< Statement_ >( new _Statement )
+{}
+
+// -----------------------------------------------------------------------------
+
 Statement::Statement( Node subject, Node predicate, Node object)
 	: std::shared_ptr< Statement_ >( new _Statement( subject, predicate, object ))
 {}
@@ -56,6 +62,18 @@ Statement::Statement( StatementRef _ref )
 
 // -----------------------------------------------------------------------------
 //	_Statement
+// -----------------------------------------------------------------------------
+
+_Statement::_Statement()
+	: statement(0), free(true)
+{
+	_World & world = _World::instance();
+    	statement = librdf_new_statement(world); 
+    	if(!statement)
+		throw VX(Error) << "Failed to allocate statement";
+
+}
+
 // -----------------------------------------------------------------------------
 
 _Statement::_Statement(Node _subject, Node _predicate, Node _object)
@@ -287,6 +305,20 @@ _Statement::operator ==(Statement _statement) const
     int equal = librdf_statement_equals(statement, s);
 
     return (equal != 0) ? true : false;
+}
+
+// -----------------------------------------------------------------------------
+
+bool
+rdf::operator == ( Statement _a, Statement _b )
+{
+	_Statement *s = static_cast< _Statement *>( _a.get());
+	if ( s )
+	{
+		return (*s) == _b;
+	}
+	else
+		return false;
 }
 
 // -----------------------------------------------------------------------------

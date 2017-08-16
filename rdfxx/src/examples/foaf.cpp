@@ -31,13 +31,13 @@ int main(void)
     try
     {
         // Create and open RDF datastore.
-        cout << "Opening BDB store in /tmp/.." << endl;
-        Storage storage("hashes", "practrdf", "new='yes',hash-type='bdb',dir='/tmp/'");
+        // cout << "Opening BDB store in /tmp/.." << endl;
+        // Storage storage("hashes", "practrdf", "new='yes',hash-type='bdb',dir='/tmp/'");
 
         // Create a new model to add statements to.
         cout << "Creating new model.." << endl;
         // Model model = Model_::make(storage);
-	Model model(storage);
+	Model model( "hashes", "practrdf", "new='yes',hash-type='bdb',dir='/tmp/'");
 	cout << "created model" << endl;
 
         // Prepare parsing a RDF/XML file.

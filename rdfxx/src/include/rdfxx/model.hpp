@@ -32,7 +32,7 @@
 
 #include <rdfxx/rdfxx.h>
 #include <rdfxx/stream.hpp>
-#include <rdfxx/storage.hpp>
+// #include <rdfxx/storage.hpp>
 #include <rdfxx/statement.hpp>
 
 namespace rdf
@@ -47,10 +47,10 @@ class _Model : public Model_
     // -------------------------------------------------------------------------
     protected:
     librdf_model* model;	// owned
+    librdf_storage *storage;	// owned
  
     // -------------------------------------------------------------------------
     public:
-    _Model() : model(0) {}
 
     //! RDF C++ Model constructor.
     /*! Initializes a new RDF Graph/Model.
@@ -59,13 +59,15 @@ class _Model : public Model_
      *  @param storage RDF C++ Storage object reference.
      *  @param options See Redland documentation for valid options.
      */
-    _Model(Storage _storage, const std::string & _options="");
+    //_Model(Storage _storage, const std::string & _options="");
+    _Model( const std::string & _storage_type, const std::string & _storage_name = "",
+    		const std::string & _storage_options = "", const std::string & _model_options = "" );
 
     //! RDF C++ Model copy constructor.
     /*! Initializes a new RDF Graph/Model from a existing one.
      *  Also copies the librdf_model object.
      */
-    _Model( const _Model & _model);
+    _Model( const _Model & _model) = delete;
 
     //! RDF C++ Model destructor.
     /*! Deletes the internally stored 
@@ -76,7 +78,7 @@ class _Model : public Model_
     // Disallow assignment operator
     _Model & operator = (const _Model &) = delete;
 
-    Model copy();
+    // Model copy();
 
     //! Get the number of statements int the model. 
     /*! 

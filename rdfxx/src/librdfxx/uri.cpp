@@ -94,7 +94,7 @@ _URI::~_URI()
 URI
 _URI::copy() const
 {
-	return URI( new _URI( *this ));
+	return URI( new _URI( (librdf_uri*)*this ));
 }
 
 // -----------------------------------------------------------------------------
@@ -147,6 +147,20 @@ _URI::operator ==( URI _uri ) const
 {
 	librdf_uri *u = DEREF( URI, librdf_uri, _uri );
     return (librdf_uri_equals(uri, u) == 0) ? false : true;
+}
+
+// -----------------------------------------------------------------------------
+
+bool
+rdf::operator == ( URI _a, URI _b )
+{
+	_URI *a = static_cast< _URI * >( _a.get());
+	if ( a )
+	{
+		return ((*a) == _b);
+	}
+	else
+		return false;
 }
 
 // -----------------------------------------------------------------------------
