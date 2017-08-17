@@ -54,7 +54,8 @@ public:
 
 // -------------------------------------------------------------------
 
-class StmntTestCase : public SASSY::cdi::TestCaseT<StmntTestCase>
+class StmntTestCase : public SASSY::cdi::TestCaseT<StmntTestCase>, 
+			public rdf::ErrorClient
 {
 protected:
 	rdf::World world;
@@ -63,6 +64,9 @@ protected:
 public:
 	StmntTestCase(csr nm);
 	~StmntTestCase();
+
+	virtual void handleError( const std::string & message );
+	virtual void handleWarning( const std::string & message );
 };
 
 // -------------------------------------------------------------------

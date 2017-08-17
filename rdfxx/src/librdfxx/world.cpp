@@ -28,6 +28,7 @@
 
 #include <rdfxx/except.h>
 #include <rdfxx/world.hpp>
+#include <rdfxx/serializer.hpp>
 #include <iostream>
 
 using namespace rdf;
@@ -52,7 +53,7 @@ Universe::world( const std::string & name )
 	auto wi = worlds.find( name );
 	if ( wi == worlds.end() )
 	{
-		World w( new _World );
+		World w( new _World(name) );
 		worlds[name] = w;
 		return w;
 	}
@@ -76,8 +77,8 @@ _World::~_World()
 
 // ----------------------------------------------------------------------------
 
-_World::_World()
-	: forErrors(false), forWarnings(true)
+_World::_World( const std::string &nm)
+	: name(nm), forErrors(false), forWarnings(true)
 {
 	world = librdf_new_world();
         if(!world)
@@ -119,6 +120,28 @@ _World::registerErrorClient( ErrorClient *client, bool warnings, bool errors )
 
 // ----------------------------------------------------------------------------
 
+void
+_World::deregisterErrorClient( ErrorClient *client )
+{
+	forWarnings.deregisterClient( client );
+	forErrors.deregisterClient( client );
+}
+
+// ----------------------------------------------------------------------------
+
+Serializer
+_World::defaultSerializer()
+{
+	if ( defSerializer == nullptr )
+	{
+		World w = Universe::instance().world( name );
+		defSerializer = Serializer( new _Serializer(w) );
+	}
+	return defSerializer;
+}
+
+// ----------------------------------------------------------------------------
+
 // static
 int 
 _World::errorHandler( void *user_data, const char *message, va_list arguments)
@@ -145,6 +168,7 @@ _World::errorHandler( void *user_data, const char *message, va_list arguments)
 	{
 		msg.assign( buffer );
 	}
+	// cout << "Error handler: " << msg << endl;
 	
 	// pass it the handler
 	ErrorHandler *eh = static_cast< ErrorHandler *>( user_data );
@@ -174,6 +198,14 @@ void
 ErrorHandler::registerClient( ErrorClient *client )
 {
 	clients.push_back(client);
+}
+
+// ----------------------------------------------------------------------------
+
+void
+ErrorHandler::deregisterClient( ErrorClient *client )
+{
+	clients.remove( client );
 }
 
 // ----------------------------------------------------------------------------

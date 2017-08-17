@@ -121,8 +121,8 @@ _Statement::_Statement( Statement _statement)
 
 // -----------------------------------------------------------------------------
 
-_Statement::_Statement(librdf_statement* _statement, bool freeOnDelete )
-	 : statement(0), free(freeOnDelete)
+_Statement::_Statement(World _w, librdf_statement* _statement, bool freeOnDelete )
+	 : world(_w), statement(0), free(freeOnDelete)
 {
     if(_statement == 0)
     {
@@ -147,7 +147,7 @@ _Statement::~_Statement()
 Statement
 _Statement::copy() const
 {
-	return Statement( new _Statement( statement, true ));
+	return Statement( new _Statement( world, statement, true ));
 }
 
 // -----------------------------------------------------------------------------
@@ -285,6 +285,7 @@ _Statement::toString() const
 	char *str = NULL;
 	size_t len = 2;
 	librdf_world* w = DEREF( World, librdf_world, world );
+
 	raptor_world * rw = librdf_world_get_raptor(w);
 	if ( rw )
 	{

@@ -31,6 +31,7 @@
 
 #include <librdf.h>
 #include <vector>
+#include <list>
 #include <string>
 #include <memory>
 #include <rdfxx/rdfxx.h>
@@ -45,11 +46,12 @@ namespace rdf
 class ErrorHandler
 {
 private:
-	std::vector< ErrorClient * > clients;  // references - do not delete
+	std::list< ErrorClient * > clients;  // references - do not delete
 	bool warnings;
 public:
 	ErrorHandler(bool _warnings ) : warnings(_warnings){}
 	void registerClient( ErrorClient * );
+	void deregisterClient( ErrorClient * );
 	void processMessage( const std::string & message );
 };
 
@@ -61,42 +63,44 @@ public:
  */
 class _World : public World_
 {
- private:
-    librdf_world* world;
+	friend class Universe;
+private:
+	librdf_world* world;
+	std::string name;
 
-    // method to handle warnings and errors
-    // ASSUMPTION: This works identically to printf.
-    static int errorHandler( void *user_data, const char *message, va_list arguments);
-    ErrorHandler forErrors;
-    ErrorHandler forWarnings;
+	// method to handle warnings and errors
+	// ASSUMPTION: This works identically to printf.
+	static int errorHandler( void *user_data, const char *message, va_list arguments);
+	ErrorHandler forErrors;
+	ErrorHandler forWarnings;
+
+	Serializer defSerializer;
  
- public:
-    //! RDF C++ World constructor.
-    /*! Protected due to singleton state.
-     */
-    _World();
+	//! RDF C++ World constructor.
+	_World( const std::string &name );
 
-    //! RDF C++ World copy-constructor.
-    /*! Protected due to singleton state.
-     */
-    _World(const _World&) = delete;
-    _World& operator = (const _World&) = delete;
+public:
+	//! RDF C++ World copy-constructor.
+	_World(const _World&) = delete;
+	_World& operator = (const _World&) = delete;
 
- public:
-    //! RDF C++ World destructor.
-    /*! Deletes the internally stored librdf_world object.
-     */
-    ~_World();
+	//! RDF C++ World destructor.
+	/*! Deletes the internally stored librdf_world object.
+	*/
+	~_World();
 
-    //! Get the instance pointer of the singleton object.
-    /*! Instances new RDF C++ World object if none is associated.
-     */
-    static _World& instance();
+	//! Get the instance pointer of the singleton object.
+	/*! Instances new RDF C++ World object if none is associated.
+	*/
+	// static _World& instance();
 
-	void registerErrorClient( ErrorClient *, bool warnings, bool errors );
+	virtual void registerErrorClient( ErrorClient *, bool warnings, bool errors );
+	virtual void deregisterErrorClient( ErrorClient * );
 
-    // This is used internally for the C API.
-    operator librdf_world*();
+	virtual Serializer defaultSerializer();
+
+	// This is used internally for the C API.
+	operator librdf_world*();
 
 };
 } // namespace rdf

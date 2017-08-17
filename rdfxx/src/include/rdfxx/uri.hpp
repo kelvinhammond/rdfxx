@@ -64,7 +64,18 @@ class _URI : public URI_
      */
     _URI( World, const char* _uri);
 
+    // create from file name.
+    _URI( const char * _filename, World );
+
+    // create from librdf pointer
     _URI( librdf_uri * );
+
+    // create normalised uri
+    _URI( const char *uri_string, URI source_uri, URI base_uri );
+
+    //
+    // create relative uri
+    _URI( URI base, const char *uri_string );
 
     //! RDF C++ URI destructor.
     /*! Deletes the internally stored librdf_URI object.
@@ -77,6 +88,11 @@ class _URI : public URI_
     /*! Note: This allocates a new librdf_uri object.
      */ 
     void set_string( World, const char* _uri_string);
+
+    // File name methods
+    //
+    bool isFileName() const;
+    std::string toFileName() const;
 
     //! Get the URI as string.
     /*! 

@@ -49,8 +49,8 @@ Stream::Stream( World w )
 
 // -----------------------------------------------------------------------------
 
-Stream::Stream( Parser parser, URI uri, URI base )
-	: std::shared_ptr< Stream_ >( new _Stream( parser, uri, base ))
+Stream::Stream( World w, Parser parser, URI uri, URI base )
+	: std::shared_ptr< Stream_ >( new _Stream( w, parser, uri, base ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ Stream::Stream( Stream_ * _stream )
 // -----------------------------------------------------------------------------
 
 _Stream::_Stream( World _w )
-	 : stream(0), currStatement(nullptr)
+	 : world(_w), stream(0), currStatement(nullptr)
 {
     // _World & world = _World::instance();
     librdf_world*world = DEREF( World, librdf_world, _w );
@@ -76,8 +76,8 @@ _Stream::_Stream( World _w )
 
 // -----------------------------------------------------------------------------
 
-_Stream::_Stream( Parser _parser, URI _uri, URI _base)
-	 : stream(0), currStatement(nullptr)
+_Stream::_Stream( World _w, Parser _parser, URI _uri, URI _base)
+	 : world(_w), stream(0), currStatement(nullptr)
 {
     librdf_parser *p = DEREF( Parser, librdf_parser, _parser );
     librdf_uri *u = DEREF( URI, librdf_uri, _uri );
@@ -90,7 +90,8 @@ _Stream::_Stream( Parser _parser, URI _uri, URI _base)
 
 // -----------------------------------------------------------------------------
 
-_Stream::_Stream(librdf_stream* _stream) :
+_Stream::_Stream(World _w, librdf_stream* _stream) :
+    world(_w),
     stream(_stream),
     currStatement(nullptr)
 {}
@@ -129,7 +130,7 @@ _Stream::current()
 {
 	// gets a shared pointer into librdf structures.
 	// only valid until next() or stream closed.
-        currStatement = Statement(new _Statement(librdf_stream_get_object(stream),false));
+        currStatement = Statement(new _Statement(world, librdf_stream_get_object(stream),false));
         return currStatement;
 }
 

@@ -44,6 +44,7 @@ class _Parser;
 class _Stream : public Stream_
 {
  private:
+    World world;
     librdf_stream* stream;
     Statement currStatement;
  
@@ -62,12 +63,12 @@ class _Stream : public Stream_
      *  @param _uri The URI to be parsed.
      *  @param _base_uri The base URI to use.
      */
-    _Stream( Parser _parser, URI _uri, URI _base_uri);
+    _Stream( World, Parser _parser, URI _uri, URI _base_uri);
 
     //! RDF C++ Stream constructor.
     /*! Initializes a a Stream object from a given librdf_stream* object.
      */
-    _Stream(librdf_stream* _stream); 
+    _Stream( World, librdf_stream* _stream); 
 
     //! RDF C++ Stream destructor.
 	/*! Deletes the internally stored librdf_stream object.

@@ -109,9 +109,11 @@ _Parser::operator librdf_parser*()
 // -----------------------------------------------------------------------------
 
 //static
-int Parser_::listParsers( World _w, std::vector< std::string > & parsers )
+std::vector< std::string >
+Parser_::listParsers( World _w )
 {
     	librdf_world* world = DEREF( World, librdf_world, _w);
+	vector< string > parsers;
 	int counter = 0;  // guess it starts at zero
 	while( true )
 	{
@@ -144,7 +146,7 @@ int Parser_::listParsers( World _w, std::vector< std::string > & parsers )
 			break;
 		}
 	}
-	return counter;
+	return parsers;
 }
 
 // -------------------------------- end ----------------------------------------

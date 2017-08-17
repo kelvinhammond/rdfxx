@@ -73,7 +73,7 @@ int main(void)
         // Parse the file.
         URI base_uri;
         unsigned int count = 0;
-        Stream stream(parser, file_uri, base_uri);
+        Stream stream(world, parser, file_uri, base_uri);
 	cout << "Created stream" << endl;
         while(!stream->end())
         {

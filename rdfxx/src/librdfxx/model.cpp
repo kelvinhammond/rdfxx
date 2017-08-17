@@ -68,6 +68,7 @@ _Model::_Model(Storage _storage, const string & _options)
 
 _Model::_Model( World _w, const std::string & _storage_type, const std::string & _storage_name,
                 const std::string & _storage_options, const std::string & _model_options )
+	: world(_w)
 {
     //_World& world = _World::instance();
     librdf_world*w = DEREF( World, librdf_world, _w);
@@ -143,7 +144,7 @@ _Model::sync()
 Stream
 _Model::toStream()
 {
-    return Stream( new _Stream(librdf_model_as_stream(model)));
+    return Stream( new _Stream(world, librdf_model_as_stream(model)));
 }
 
 // -----------------------------------------------------------------------------

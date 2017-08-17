@@ -36,6 +36,18 @@ using namespace std;
 //	Serializer
 // -----------------------------------------------------------------------------
 
+Serializer::Serializer()
+	:  std::shared_ptr< Serializer_ >( nullptr )
+{}
+
+// -----------------------------------------------------------------------------
+
+Serializer::Serializer( Serializer_* _ser )
+	:  std::shared_ptr< Serializer_ >( _ser )
+{}
+
+// -----------------------------------------------------------------------------
+
 Serializer::Serializer( World w, const std::string &name, const std::string & syntax_mime )
 	: std::shared_ptr< Serializer_ >( new _Serializer( w, name, syntax_mime ))
 {}

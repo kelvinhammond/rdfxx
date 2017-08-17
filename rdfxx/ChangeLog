@@ -15,10 +15,10 @@ Future
 	* Datatypes
 	* Edges
 	* Submodels
-	* Worlds
 
 2017-08-16	Brenton Ross
 
+	* all: Replaced World singelton with parameter.
 	* all: Unit Test Harness and bug-fixes from tests.
 
 2017-08-04	Brenton Ross

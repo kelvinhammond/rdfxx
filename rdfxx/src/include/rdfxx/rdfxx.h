@@ -80,10 +80,17 @@ class URI : public std::shared_ptr< URI_ >
 public:
 	URI();
 	URI( URI_* );
-	URI( World,  const std::string & );
+	URI( World,  const std::string &uri_string );
 
-	// TODO - construct from filename
-	// TODO - construct relative to base URI
+	// convert a file name into a URI
+	URI( const std::string & filename, World );
+
+	// result has source_uri replaced by base_uri in uri_string
+	// useful for conversion between prefix and namespace forms.
+	URI( const std::string &uri_string, URI source_uri, URI base_uri );
+
+	// result is that uri_string replaces anything after the final '/' in base_uri
+	URI( URI base_uri, const std::string &uri_string );
 };
 
 // ---------------------------------------------------------------
@@ -181,6 +188,8 @@ public:
 class Serializer : public std::shared_ptr< Serializer_ >
 {
 public:
+	Serializer();
+	Serializer( Serializer_* );
 	Serializer( World, const std::string & name = "rdfxml",
 			const std::string & syntax_mime = "" );
 	Serializer( World, const std::string & name, URI syntax_uri );
@@ -194,7 +203,7 @@ public:
 	Stream();
 	Stream( World );
 	Stream( Stream_* );
-	Stream( Parser, URI, URI base );
+	Stream( World, Parser, URI, URI base );
 };
 
 // ---------------------------------------------------------------
@@ -223,11 +232,6 @@ public:
 };
 
 // ---------------------------------------------------------------
-// 
-// The following abstract classes provide the functional interface
-// to the underlying librdf C library.
-//
-// ---------------------------------------------------------------
 
 class Universe
 {
@@ -241,12 +245,28 @@ public:
 
 // ---------------------------------------------------------------
 
+struct Format
+{
+	bool usePrefixes;	// replace namespaces with prefixes
+	std::string blank;	// name to blank nodes
+};
+
+// ---------------------------------------------------------------
+// 
+// The following abstract classes provide the functional interface
+// to the underlying librdf C library.
+//
+
+// ---------------------------------------------------------------
+
 class World_
 {
 public:
 	virtual ~World_(){}
 	// static World instance();
 	virtual void registerErrorClient( ErrorClient *, bool warnings, bool errors ) = 0;
+	virtual void deregisterErrorClient( ErrorClient * ) = 0;
+	virtual Serializer defaultSerializer() = 0;
 };
 
 // ---------------------------------------------------------------
@@ -309,7 +329,7 @@ public:
 	virtual bool parseIntoModel( Model, URI uri, URI base_uri ) = 0;
 
 	// Get a list of parser names with their syntax URIs
-	static int listParsers( World, std::vector< std::string > & );
+	static std::vector< std::string > listParsers( World );
 };
 
 // ---------------------------------------------------------------
@@ -493,6 +513,8 @@ public:
 	virtual std::string toString() const = 0;
 	virtual bool operator == (URI)const = 0;
 
+	virtual bool isFileName() const = 0;
+	virtual std::string toFileName() const = 0;
 	// TODO - test for file name
 	// TODO - convert to file name
 };

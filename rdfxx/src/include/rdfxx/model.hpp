@@ -46,8 +46,10 @@ class _Model : public Model_
 {
     // -------------------------------------------------------------------------
     protected:
+    World world;
     librdf_model* model;	// owned
     librdf_storage *storage;	// owned
+
  
     // -------------------------------------------------------------------------
     public:

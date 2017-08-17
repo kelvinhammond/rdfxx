@@ -380,9 +380,7 @@ int main(int _argc, char** _argv)
 {
     try
     {
-    	std::vector< std::string > parsers;
-    	Parser_::listParsers( Universe::instance().world("Projection"), parsers );
-	for( auto &x : parsers )
+	for( auto &x : Parser_::listParsers( Universe::instance().world("Projection") ))
 	{
 		cout << x << endl;
 	}

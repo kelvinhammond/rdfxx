@@ -22,6 +22,7 @@
 #include <config.h>
 #include "rdftest.h"
 #include <cfi/xini.h>
+#include "rdfxx/except.h"
 #include "rdfxx/rdfxx.h"
 #include <iostream>
 #include <map>
@@ -51,6 +52,8 @@ URITestCase::URITestCase( csr nm)
 	: TestCaseT<URITestCase>(nm)
 {
 	world = Universe::instance().world("test");
+	Serializer ser = world->defaultSerializer();
+	ser->setNamespace( URI(world, "http://www.w3.org/1999/02/22-rdf-syntax-ns#"), "rdf" );
 }
 
 // ------------------------------------------------------------
@@ -73,8 +76,8 @@ URITestCase::runTest()
 
 		URI uri2 = uri->copy();
 
-		rc = rc && test( (uri2->toString() == "http://purl.org/dc/0.1/title"), "uri 2");
-		rc = rc && test((uri == uri2), "uri 3");
+		rc = rc && test( (uri2->toString() == "http://purl.org/dc/0.1/title"), "uri 3");
+		rc = rc && test((uri == uri2), "uri 4");
 		
 		// confirm that URIs can go into standard containers
 		vector< URI > uris;
@@ -83,6 +86,27 @@ URITestCase::runTest()
 		map< int, URI > uri_map;
 		uri_map[1] = uri;
 
+		URI uri_fn( "/tmp/filename.rdf", world );
+		cout << "URI filename: " << uri_fn->toString() << endl;
+		cout << "URI filename as filename: " << uri_fn->toFileName() << endl;
+		rc = rc && test( uri_fn->isFileName(), "uri 5");
+
+		URI uri3( uri, "fruit" );
+		cout << "relative to base: " << uri3->toString() << endl;
+		rc = rc && test( uri3->toString() == "http://purl.org/dc/0.1/fruit", "uri 6");
+
+		URI src_uri(world, "http://purl.org/dc/0.1/title#");
+		URI base_uri(world, "dc:");
+		URI uri4( "http://purl.org/dc/0.1/title#fred", src_uri, base_uri );
+
+		cout << "prefix form: " << uri4->toString() << endl;
+		rc = rc && test( uri4->toString() == "dc:fred", "uri 7");
+
+		URI uri5( uri4->toString(), base_uri, src_uri );
+		cout << "normal form: " << uri5->toString() << endl;
+		rc = rc && test( uri5->toString() == "http://purl.org/dc/0.1/title#fred", "uri 8");
+
+		cout << "---------- end URI tests -------------" << endl;
 	}
 	catch( vx & e )
 	{
@@ -144,7 +168,7 @@ NodeTestCase::runTest()
 		URI uri2 = n9->toURI();
 		rc = rc && test( uri == uri2, "node 14");
 		rc = rc && test( n3->toString() == "\"fred\"", "node 15");
-		cout << "n3 = \"" << n3->toString() << "\"" << endl;
+		// cout << "n3 = \"" << n3->toString() << "\"" << endl;
 
 		// confirm that Nodes can go into standard containers
 		vector< Node > node_list;
@@ -167,22 +191,41 @@ StmntTestCase::StmntTestCase(csr nm )
 	: TestCaseT<StmntTestCase>(nm)
 {
 	world = Universe::instance().world("test");
+	world->registerErrorClient( this, true, true );
 }
 
 // ------------------------------------------------------------
 
 StmntTestCase::~StmntTestCase()
-{}
+{
+	world->deregisterErrorClient( this );
+}
 
 // ------------------------------------------------------------
 
+void 
+StmntTestCase::handleError( const std::string & message )
+{
+	throw VX(rdf::Error) << message;
+}
+
+// ------------------------------------------------------------
+
+void 
+StmntTestCase::handleWarning( const std::string & message )
+{
+	throw VX(rdf::Warning) << message;
+}
+
+
+// ------------------------------------------------------------
 bool
 StmntTestCase::runTest()
 {
 	bool rc = true;
 
 	try {
-		Node n1;
+		Node n1(world);
 		Statement s1(world, n1, n1, n1 );
 		rc = rc && test( true, "stmnt 1");
 		rc = rc && test( ! s1->isComplete(), "stmnt 2");
@@ -262,7 +305,7 @@ ModelTestCase::runTest()
 	try {
 		Model m1(world,"memory");
 		rc = rc && test( m1->size() == 0, "model 1");
-		cout << "model size is " << m1->size() << endl;
+		// cout << "model size is " << m1->size() << endl;
 		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
 		Node n1(world, uri );
 		Node n2(world,"http://purl.org/dc/0.1/title");
@@ -362,7 +405,7 @@ StoreTestCase::runTest()
 			x->next();
 		}
 	}
-	cout << "Found " << count << " statements" << endl;
+	// cout << "Found " << count << " statements" << endl;
 	rc = rc && test( count = 188, "store 2");
 
 	
@@ -407,11 +450,12 @@ IOTestCase::runTest()
 		bool res = ser->toFile( "/tmp/iotest.rdf", m1, uri );
 		rc = rc && test( res, "io 3");
 
-		vector< string> parsers;
-		Parser_::listParsers(world, parsers );
+		cout << "Parser list" << endl;
+		vector< string> parsers = Parser_::listParsers(world );
 		for( auto & x : parsers )
 			cout << x << endl;
 		rc = rc && test( parsers.size() > 0, "io 4" );
+		cout << string( 30, '-' ) << endl;
 
 		Model m2(world,"memory" );
 		Parser p(world, "rdfxml" );
@@ -469,14 +513,14 @@ QueryTestCase::runTest()
 		string fn( rdfFiles.front() );
 		Model m1(world,"file", fn );
 
-		/*
+		
 		Stream x = m1->toStream();
 		while ( ! x->end() )
 		{
 			cout << x->current()->toString() << endl;
 			x->next();
 		}
-		*/
+		
 		QueryString qs;
 		qs.addPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		qs.addPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
@@ -570,6 +614,8 @@ int main( int argc, char * argv[])
 		StoreTestCase::install("E Store test",     "RDF scenario");
 		   IOTestCase::install("F IO test",        "RDF scenario");
 		QueryTestCase::install("G Query test",     "RDF scenario");
+		  /*
+		*/
 
 		Tester::instance().runTests();
 		rc = Tester::instance().summary();

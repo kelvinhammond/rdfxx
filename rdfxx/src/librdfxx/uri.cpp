@@ -54,6 +54,24 @@ URI::URI( World w, const std::string & _uri )
 {}
 
 // -----------------------------------------------------------------------------
+
+URI::URI( const std::string & filename, World _w )
+	: std::shared_ptr< URI_ >( new _URI( filename.c_str(), _w ))
+{}
+
+// -----------------------------------------------------------------------------
+
+URI::URI( const std::string &uri_string, URI source_uri, URI base_uri )
+	: std::shared_ptr< URI_ >( new _URI( uri_string.c_str(), source_uri, base_uri ))
+{}
+
+// -----------------------------------------------------------------------------
+
+URI::URI( URI base_uri, const std::string &uri_string )
+	: std::shared_ptr< URI_ >( new _URI( base_uri, uri_string.c_str() ))
+{}
+
+// -----------------------------------------------------------------------------
 //	_URI
 // -----------------------------------------------------------------------------
 
@@ -71,15 +89,50 @@ _URI::_URI(World w, const char* _uri_string)
 
 // -----------------------------------------------------------------------------
 
+_URI::_URI( const char* _filename, World _w )
+{
+    	librdf_world* w = DEREF( World, librdf_world, _w);
+	uri = librdf_new_uri_from_filename( w, _filename );
+    	if(!uri)
+		throw VX(Error) << "Failed to allocate URI";
+}
+
+// -----------------------------------------------------------------------------
+
 _URI::_URI( librdf_uri * _uri )
 	 : uri(0)
 {
 	uri = librdf_new_uri_from_uri( _uri );
-    if(!uri)
-	throw VX(Error) << "Failed to allocate URI";
+    	if(!uri)
+		throw VX(Error) << "Failed to allocate URI";
 }
 
 // -----------------------------------------------------------------------------
+
+_URI::_URI( const char *uri_string, URI source_uri, URI base_uri )
+{
+	librdf_uri *base = DEREF( URI, librdf_uri, base_uri );
+	librdf_uri *src = DEREF( URI, librdf_uri, source_uri );
+
+	uri = librdf_new_uri_normalised_to_base( (const unsigned char *)uri_string,
+				src, base );
+    	if(!uri)
+		throw VX(Error) << "Failed to allocate URI";
+}
+
+
+// -----------------------------------------------------------------------------
+
+_URI::_URI( URI _base, const char *_uri_string )
+{
+	librdf_uri *base = DEREF( URI, librdf_uri, _base );
+	uri = librdf_new_uri_relative_to_base( base, (const unsigned char *)_uri_string );
+    	if(!uri)
+		throw VX(Error) << "Failed to allocate URI";
+}
+
+// -----------------------------------------------------------------------------
+
 _URI::~_URI()
 {
     if(uri)
@@ -122,7 +175,7 @@ _URI::set_string(World _w, const char* _uri_string)
 std::string
 _URI::toString() const
 {
-    string s( (const char*) librdf_uri_to_string(uri));
+    string s( (const char*) librdf_uri_as_string(uri));
 
     return s;
 }
@@ -132,6 +185,24 @@ _URI::toString() const
 _URI::operator const char*() const
 {
     return toString().c_str();
+}
+
+// -----------------------------------------------------------------------------
+
+bool
+_URI::isFileName() const
+{
+	int res = librdf_uri_is_file_uri( uri );
+	return ( res != 0 );
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+_URI::toFileName() const
+{
+	string s( librdf_uri_to_filename( uri ));
+	return s;
 }
 
 // -----------------------------------------------------------------------------

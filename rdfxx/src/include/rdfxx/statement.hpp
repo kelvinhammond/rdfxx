@@ -86,7 +86,7 @@ class _Statement : public Statement_
      *
      *  Throws ArgumentError if given a 0-pointer.
      */ 
-    _Statement(librdf_statement* _statement, bool freeOnDelete );
+    _Statement(World, librdf_statement* _statement, bool freeOnDelete );
 
     //! RDF C++ Statement destructor.
     /*! Deletes the internally stored librdf_statement object.
