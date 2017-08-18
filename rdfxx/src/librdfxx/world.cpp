@@ -62,6 +62,98 @@ Universe::world( const std::string & name )
 }
 
 // ----------------------------------------------------------------------------
+//	Prefixes
+// ----------------------------------------------------------------------------
+
+Prefixes::Prefixes( World _w)
+	: world(_w)
+{
+	librdf_world*w = DEREF( World, librdf_world, _w );
+	URI rdf_uri( new _URI( librdf_get_concept_ms_namespace( w )));
+	insert( "rdf", rdf_uri );
+	URI rdfs_uri( new _URI( librdf_get_concept_schema_namespace(w)));
+	insert( "rdfs", rdfs_uri );
+}
+
+// ----------------------------------------------------------------------------
+
+bool
+Prefixes::isBase( URI uri ) const
+{
+	string s( uri->toString() );
+	string::size_type p = s.find_last_of('#');
+	if ( p == string::npos )
+	{
+		return false;
+	}
+	else
+	{
+		URI u(World(world), s.substr(0,p+1));
+		return (u == base_uri);
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+std::string
+Prefixes::removeBase( URI uri ) const
+{
+	string s( uri->toString() );
+	string::size_type p = s.find_last_of('#');
+	if ( p == string::npos )
+	{
+		return s;
+	}
+	else
+	{
+		return s.substr(p+1);
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+void
+Prefixes::insert( const std::string &prefix, URI _uri )
+{
+	uriForPrefix[ prefix ] = _uri;
+	prefixForURI[ _uri->toString() ] = prefix;
+}
+
+// ----------------------------------------------------------------------------
+
+std::string
+Prefixes::find( URI _uri )
+{
+	// cout << "Prefixes::find" << endl;
+	URI u = _uri->trim( World(world));
+	// for ( auto &x : prefixForURI )
+	// {
+		// cout << x.first << " --> " << x.second;
+		// if ( u->toString() == x.first ) cout << " found";
+		// cout << endl;
+	// }
+	// cout << "end Prefixes::find \"" << u->toString() << "\"" << endl;
+	auto I = prefixForURI.find( u->toString() );
+	if ( I == prefixForURI.end() )
+	{
+		// cout << "Failed to find \"" << u->toString() << "\"" << endl;
+		return "";
+	}
+	else
+		return I->second;
+}
+
+// ----------------------------------------------------------------------------
+
+URI
+Prefixes::find( const std::string &prefix )
+{
+	return uriForPrefix[ prefix ];
+}
+
+// ----------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 //	_World
@@ -78,7 +170,8 @@ _World::~_World()
 // ----------------------------------------------------------------------------
 
 _World::_World( const std::string &nm)
-	: name(nm), forErrors(false), forWarnings(true)
+	: world_name(nm), world_prefixes(nullptr), 
+	  forErrors(false), forWarnings(true)
 {
 	world = librdf_new_world();
         if(!world)
@@ -129,12 +222,24 @@ _World::deregisterErrorClient( ErrorClient *client )
 
 // ----------------------------------------------------------------------------
 
+Prefixes &
+_World::prefixes()
+{
+	if ( world_prefixes == nullptr )
+	{
+		world_prefixes = new Prefixes( shared_from_this());
+	}
+	return *world_prefixes;
+}
+
+// ----------------------------------------------------------------------------
+
 Serializer
 _World::defaultSerializer()
 {
 	if ( defSerializer == nullptr )
 	{
-		World w = Universe::instance().world( name );
+		World w = shared_from_this();
 		defSerializer = Serializer( new _Serializer(w) );
 	}
 	return defSerializer;

@@ -49,9 +49,9 @@ class _Statement : public Statement_
     librdf_statement* statement;
     
     // keep shared pointers so that returned weak pointer remains valid
-    Node subject_holder;
-    Node predicate_holder;
-    Node object_holder;
+    mutable Node subject_holder;
+    mutable Node predicate_holder;
+    mutable Node object_holder;
 
     // control clean up
     bool free;
@@ -99,7 +99,7 @@ class _Statement : public Statement_
     /*!
      *  @return A RDF C++ Node object.
      */ 
-    NodeRef subject();
+    NodeRef subject() const;
 
     //! Set the subject Node of the Statement object.
     /*!
@@ -111,7 +111,7 @@ class _Statement : public Statement_
     /*!
      *  @return A RDF C++ Node object.
      */ 
-    NodeRef predicate();
+    NodeRef predicate() const;
 
     //! Set the predicate Node of the Statement object.
     /*!
@@ -123,7 +123,7 @@ class _Statement : public Statement_
     /*!
      *  @return A RDF C++ Node object.
      */ 
-    NodeRef object();
+    NodeRef object() const;
 
     //! Set the predicate Node of the Statement object.
     /*!
@@ -160,6 +160,7 @@ class _Statement : public Statement_
      */ 
     // const char* get_string();
     std::string toString() const;
+    std::string toString( const Format & ) const;
 
     //! Equality operator.
     /*!

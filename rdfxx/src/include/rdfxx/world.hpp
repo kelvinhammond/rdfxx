@@ -61,12 +61,13 @@ public:
 /*!
  *  Singleton class, internally used for librdf statements.
  */
-class _World : public World_
+class _World : public World_, public std::enable_shared_from_this< _World >
 {
 	friend class Universe;
 private:
 	librdf_world* world;
-	std::string name;
+	std::string world_name;
+	Prefixes *world_prefixes;
 
 	// method to handle warnings and errors
 	// ASSUMPTION: This works identically to printf.
@@ -88,6 +89,9 @@ public:
 	/*! Deletes the internally stored librdf_world object.
 	*/
 	~_World();
+
+	std::string name() { return world_name; }
+	Prefixes &prefixes();
 
 	//! Get the instance pointer of the singleton object.
 	/*! Instances new RDF C++ World object if none is associated.

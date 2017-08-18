@@ -83,6 +83,7 @@ class _URI : public URI_
     ~_URI();
 
 	URI copy() const;
+	URI trim( World ) const;
 
     //! Set the URI string.
     /*! Note: This allocates a new librdf_uri object.
@@ -112,6 +113,7 @@ class _URI : public URI_
      */ 
     bool operator ==(_URI& _uri) const;
     bool operator ==(URI _uri) const;
+    bool operator <(URI _uri) const;
 
     // This is used internally for the C API.
     operator librdf_uri*() const;

@@ -64,6 +64,7 @@ class QueryString;
 // Shared pointers for use by the client applications
 //
 using World = std::shared_ptr< World_ >;
+using WorldRef = std::weak_ptr< World_ >;
 using NodeRef = std::weak_ptr< Node_ >;
 using QueryResults = std::shared_ptr< QueryResults_ >;
 using StatementRef = std::shared_ptr< Statement_ >;
@@ -91,6 +92,7 @@ public:
 
 	// result is that uri_string replaces anything after the final '/' in base_uri
 	URI( URI base_uri, const std::string &uri_string );
+
 };
 
 // ---------------------------------------------------------------
@@ -245,10 +247,43 @@ public:
 
 // ---------------------------------------------------------------
 
+// Instructions for converting a node to a string.
 struct Format
 {
+	// resources
 	bool usePrefixes;	// replace namespaces with prefixes
-	std::string blank;	// name to blank nodes
+	bool angleBrackets;	// enclose URI in '<' ... '>'
+	
+	// blank
+	std::string blank;	// name to give blank nodes
+
+	// literal
+	bool quotes;		// put values in quotes
+	bool showLanguage;	// include language identifier as for example: @en
+	std::string prefLang;	// restrict to this language when there are alternatives
+	bool showDataType;	// include data type as for example: ^^xsd:integer
+};
+
+// ---------------------------------------------------------------
+
+class Prefixes
+{
+private:
+	WorldRef world;
+	URI base_uri;
+	std::map< std::string, URI > uriForPrefix;
+	std::map< std::string, std::string > prefixForURI;
+public:
+	Prefixes( World );
+
+	void base( URI uri ) { base_uri = uri; }
+	URI base() const { return base_uri; }
+	bool isBase( URI ) const;
+	std::string removeBase( URI ) const;
+
+	void insert( const std::string &prefix, URI );
+	URI find( const std::string & );
+	std::string find( URI );
 };
 
 // ---------------------------------------------------------------
@@ -267,6 +302,7 @@ public:
 	virtual void registerErrorClient( ErrorClient *, bool warnings, bool errors ) = 0;
 	virtual void deregisterErrorClient( ErrorClient * ) = 0;
 	virtual Serializer defaultSerializer() = 0;
+	virtual Prefixes & prefixes() = 0;
 };
 
 // ---------------------------------------------------------------
@@ -308,6 +344,7 @@ public:
 	virtual Node copy() const = 0;
 
 	virtual std::string toString() const = 0;
+	virtual std::string toString(const Format &) const = 0;
 	virtual URI toURI() const = 0;
 
 	virtual bool isLiteral() const = 0;
@@ -437,17 +474,18 @@ public:
 	virtual Statement copy() const = 0;
 
 	virtual void subject( Node n ) = 0;
-	virtual NodeRef subject() = 0;
+	virtual NodeRef subject() const = 0;
 	virtual void predicate( Node n ) = 0;
-	virtual NodeRef predicate() = 0;
+	virtual NodeRef predicate() const = 0;
 	virtual void object( Node n ) = 0;
-	virtual NodeRef object() = 0;
+	virtual NodeRef object() const = 0;
 
 	virtual bool isComplete() const = 0;
 	virtual bool match( Statement ) const = 0;
 	virtual void clear() = 0;
 
 	virtual std::string toString() const = 0;
+	virtual std::string toString( const Format &) const = 0;
 	virtual bool operator == ( Statement ) const = 0;
 };
 
@@ -510,13 +548,15 @@ public:
 	virtual ~URI_() {}
 	
 	virtual URI copy() const = 0;
+
+	// strip off fragment
+	virtual URI trim( World ) const = 0;
+
 	virtual std::string toString() const = 0;
 	virtual bool operator == (URI)const = 0;
 
 	virtual bool isFileName() const = 0;
 	virtual std::string toFileName() const = 0;
-	// TODO - test for file name
-	// TODO - convert to file name
 };
 
 bool operator == ( URI, URI );

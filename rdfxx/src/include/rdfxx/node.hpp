@@ -132,6 +132,7 @@ class _Node : public Node_
      *  @return Node as const char* string.
      */
     std::string toString() const;
+    std::string toString( const Format & ) const;
 
 	URI toURI() const;
 

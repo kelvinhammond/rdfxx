@@ -153,7 +153,7 @@ _Statement::copy() const
 // -----------------------------------------------------------------------------
 
 NodeRef
-_Statement::subject()
+_Statement::subject() const
 {
     librdf_node* subject = librdf_statement_get_subject(statement);
 
@@ -184,7 +184,7 @@ _Statement::subject(Node _node)
 // -----------------------------------------------------------------------------
 
 NodeRef
-_Statement::predicate()
+_Statement::predicate() const
 {
     librdf_node* predicate = librdf_statement_get_predicate(statement);
 
@@ -214,7 +214,7 @@ _Statement::predicate(Node _node)
 // -----------------------------------------------------------------------------
 
 NodeRef
-_Statement::object()
+_Statement::object() const
 {
     librdf_node* object = librdf_statement_get_object(statement);
 
@@ -304,6 +304,19 @@ _Statement::toString() const
     // sstring = (const char*) librdf_statement_to_string(statement);
 
     return s;
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+_Statement::toString( const Format &format ) const
+{
+	string s = Node( subject() )->toString( format );
+	s += " ";
+	s += Node( predicate() )->toString( format );
+	s += " ";
+	s += Node( object() )->toString( format );
+	return s;
 }
 
 // -----------------------------------------------------------------------------

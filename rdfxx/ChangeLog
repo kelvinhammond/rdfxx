@@ -11,10 +11,10 @@ YYYY-MM-DD  John Doe  <johndoe@example.com>
 Future
 	* RDFS concepts
 	* Postgresql storage
-	* Prefixes and namespaces
-	* Datatypes
 	* Edges
 	* Submodels
+	* Literals and Datatypes
+	* Prefixes and namespaces
 
 2017-08-16	Brenton Ross
 

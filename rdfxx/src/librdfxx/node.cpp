@@ -227,6 +227,53 @@ _Node::toString() const
 
 // -----------------------------------------------------------------------------
 
+std::string
+_Node::toString( const Format & format ) const
+{
+	string s;
+	Prefixes &prefixes = world->prefixes();
+	if ( librdf_node_is_resource(node) )
+	{
+		URI uri = toURI();
+		if ( format.usePrefixes )
+		{
+			if ( prefixes.isBase( uri ))
+			{
+				s = prefixes.removeBase( uri );
+			}
+			else
+			{
+				string prefix = prefixes.find( uri );
+				if (! prefix.empty())
+				{
+					URI src = prefixes.find( prefix );
+					prefix.append(":");
+					URI res( uri->toString(), src, URI(world, prefix));
+					s = res->toString();
+				}
+			}
+		}
+		if ( s.empty())
+		{
+			if ( format.angleBrackets )
+			{
+				s += "<";
+				s += uri->toString();
+				s += ">";
+			}
+			else
+			{
+				s += uri->toString();
+			}
+
+		}
+	}
+	if ( s.empty() ) s = toString();
+	return s;
+}
+
+// -----------------------------------------------------------------------------
+
 URI
 _Node::toURI() const
 {
@@ -242,7 +289,7 @@ _Node::toURI() const
 bool
 _Node::isResource() const
 {
-	return (librdf_node_is_resource(node) != 0) ? true : false;
+	return (librdf_node_is_resource(node) != 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -250,7 +297,7 @@ _Node::isResource() const
 bool
 _Node::isBlank() const
 {
-	return (librdf_node_is_blank(node) != 0) ? true : false;
+	return (librdf_node_is_blank(node) != 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -258,7 +305,7 @@ _Node::isBlank() const
 bool
 _Node::isLiteral() const
 {
-	return (librdf_node_is_literal(node) != 0) ? true : false;
+	return (librdf_node_is_literal(node) != 0);
 }
 
 // -----------------------------------------------------------------------------

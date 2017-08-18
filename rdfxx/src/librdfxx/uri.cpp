@@ -151,6 +151,19 @@ _URI::copy() const
 }
 
 // -----------------------------------------------------------------------------
+
+URI
+_URI::trim( World w ) const
+{
+	string s( toString() );
+	string::size_type p = s.find_last_of('#');
+	if ( p == string::npos )
+		return copy();
+	else
+		return URI( w, s.substr(0,p+1));
+}
+
+// -----------------------------------------------------------------------------
 void
 _URI::set_string(World _w, const char* _uri_string)
 {

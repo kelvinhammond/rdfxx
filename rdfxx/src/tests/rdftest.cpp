@@ -69,14 +69,14 @@ URITestCase::runTest()
 	bool rc = true;
 
 	try {
-		URI uri(world,"http://purl.org/dc/0.1/title");
+		URI uri(world,"http://purl.org/dc/0.1/title#");
 		rc = rc && test( true, "uri 1");
 
-		rc = rc && test( (uri->toString() == "http://purl.org/dc/0.1/title"), "uri 2");
+		rc = rc && test( (uri->toString() == "http://purl.org/dc/0.1/title#"), "uri 2");
 
 		URI uri2 = uri->copy();
 
-		rc = rc && test( (uri2->toString() == "http://purl.org/dc/0.1/title"), "uri 3");
+		rc = rc && test( (uri2->toString() == "http://purl.org/dc/0.1/title#"), "uri 3");
 		rc = rc && test((uri == uri2), "uri 4");
 		
 		// confirm that URIs can go into standard containers
@@ -85,7 +85,19 @@ URITestCase::runTest()
 
 		map< int, URI > uri_map;
 		uri_map[1] = uri;
+		map< URI, int > rev_uri_map;
+		rev_uri_map[uri] = 4;
+		rc = rc && test( uri_map[1] == uri, "uri 3.0.1");
+		rc = rc && test( rev_uri_map[uri] == 4, "uri 3.0.2");
 
+		// removal of fragment
+		URI uri_frag(world,"http://purl.org/dc/0.1/title#stuff");
+		rc = rc && test( (uri_frag->toString() == "http://purl.org/dc/0.1/title#stuff"), "uri 3.1");
+		URI uri_defrag = uri_frag->trim(world);
+		rc = rc && test( uri_defrag == uri, "uri 3.2");
+		cout << "3.2: " << uri_defrag->toString() << endl;
+
+		// uri <--> filename
 		URI uri_fn( "/tmp/filename.rdf", world );
 		cout << "URI filename: " << uri_fn->toString() << endl;
 		cout << "URI filename as filename: " << uri_fn->toFileName() << endl;
@@ -105,6 +117,14 @@ URITestCase::runTest()
 		URI uri5( uri4->toString(), base_uri, src_uri );
 		cout << "normal form: " << uri5->toString() << endl;
 		rc = rc && test( uri5->toString() == "http://purl.org/dc/0.1/title#fred", "uri 8");
+
+		Prefixes &prefixes = world->prefixes();
+		prefixes.insert( "dc", uri );
+
+		rc = rc && test( prefixes.find( uri ) == "dc", "uri 9");
+		cout << "9: \"" << prefixes.find( uri ) << "\"" << endl;
+		rc = rc && test( prefixes.find( "dc" ) == uri, "uri 10");
+
 
 		cout << "---------- end URI tests -------------" << endl;
 	}
@@ -139,6 +159,7 @@ NodeTestCase::runTest()
 	bool rc = true;
 
 	try {
+		cout << "------------------ nodes --------------" << endl;
 		Node n1(world,"http://purl.org/dc/0.1/title");
 		rc = rc && test( true, "node 1");
 		rc = rc && test( n1->isResource(), "node 2");
@@ -175,6 +196,27 @@ NodeTestCase::runTest()
 		node_list.push_back(n8);
 		map< int, Node > node_map;
 		node_map[2] = n2;
+
+		// formatting
+		Format format;
+		format.usePrefixes = false;
+		format.angleBrackets = true;
+		rc = rc && test( n8->toString(format) == "<http://organise.org/ofw/0.4/categories/documents>",
+					"node 16" );
+		format.angleBrackets = false;
+		rc = rc && test( n8->toString(format) == "http://organise.org/ofw/0.4/categories/documents",
+					"node 17" );
+
+		string s3("http://organise.org/ofw/0.4/categories/documents#");
+		URI uri3(world, s3);
+		world->prefixes().insert( "ofw", uri3 );
+		URI uri4(world, s3 + "stuff");
+		Node nf1(world, uri4);
+		format.usePrefixes = true;
+		rc = rc && test( nf1->toString(format) == "ofw:stuff", "node 18");
+		if ( ! rc ) cout << "\"" << nf1->toString(format) << "\"" << endl;
+
+		cout << "------------------ end nodes --------------" << endl;
 	}
 	catch( vx & e )
 	{
@@ -512,12 +554,13 @@ QueryTestCase::runTest()
 	try {
 		string fn( rdfFiles.front() );
 		Model m1(world,"file", fn );
+		world->prefixes().base( URI( fn + "#", world));
 
-		
+		Format format = { true, true, "blank", true, true, "en", true };
 		Stream x = m1->toStream();
 		while ( ! x->end() )
 		{
-			cout << x->current()->toString() << endl;
+			cout << "stmnt: >>> " << x->current()->toString(format) << " <<< " << endl;
 			x->next();
 		}
 		
