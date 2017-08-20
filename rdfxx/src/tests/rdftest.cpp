@@ -608,6 +608,80 @@ QueryTestCase::runTest()
 }
 
 
+// ------------------------------------------------------------
+//	LiteralTestCase
+// ------------------------------------------------------------
+
+LiteralTestCase::LiteralTestCase( csr nm )
+	: TestCaseT< LiteralTestCase >(nm)
+{
+	world = Universe::instance().world("test");
+}
+
+// ------------------------------------------------------------
+
+LiteralTestCase::~LiteralTestCase()
+{
+}
+
+// ------------------------------------------------------------
+
+bool
+LiteralTestCase::runTest()
+{
+	bool rc = true;
+
+	try {
+		cout << "---------- begin literal tests ---------- " << endl;
+		Literal L1;
+		rc = rc && test( L1.dataType() == DataType::PlainLiteral, "literal 1");
+
+		Literal L2(string("hello world"));
+		rc = rc && test( L2.dataType() == DataType::PlainLiteral, "literal 2");
+		rc = rc && test( L2.language() == "en", "literal 3");
+		rc = rc && test( L2.asString() == "hello world", "literal 4");
+
+		Literal L3("hello la world", "fr");
+		rc = rc && test( L3.dataType() == DataType::PlainLiteral, "literal 5");
+		rc = rc && test( L3.language() == "fr", "literal 6");
+		rc = rc && test( L3.asString() == "hello la world", "literal 7");
+
+		Literal L4("hello to the world", DataType::String, "hu");
+		rc = rc && test( L4.dataType() == DataType::String, "literal 8");
+		rc = rc && test( L4.language() == "hu", "literal 9");
+		rc = rc && test( L4.asString() == "hello to the world", "literal 10");
+
+		Literal L5( 23, DataType::Integer );
+		rc = rc && test( L5.dataType() == DataType::Integer, "literal 11");
+		rc = rc && test( L5.language() == "", "literal 12");
+		rc = rc && test( L5.asString() == "23", "literal 13");
+
+		Literal L6( 23.7, DataType::Float );
+		rc = rc && test( L6.dataType() == DataType::Float, "literal 14");
+		rc = rc && test( L6.language() == "", "literal 15");
+		rc = rc && test( L6.asString() == "23.7", "literal 16");
+
+		Literal L7( true );
+		rc = rc && test( L7.dataType() == DataType::Boolean, "literal 17");
+		rc = rc && test( L7.language() == "", "literal 18");
+		rc = rc && test( L7.asString() == "true", "literal 19");
+
+		rc = rc && test( L7.toString() == "\"true\"^^xsd:boolean", "literal 20");
+		rc = rc && test( L6.toString() == "\"23.7\"^^xsd:float", "literal 21");
+		rc = rc && test( L4.toString() == "\"hello to the world\"^^xsd:string", "literal 22");
+
+		cout << "---------- end literal tests ---------- " << endl;
+	}
+	catch( vx & e )
+	{
+		rc = test( false, e.what());
+	}
+	return rc;
+}
+
+
+// ------------------------------------------------------------
+
 
 // ------------------------------------------------------------
 //	ExampleTestCase
@@ -650,13 +724,14 @@ int main( int argc, char * argv[])
 		Tester::instance().configure("librdfxx");
 
 		// ExampleTestCase::install("Tester test", "Tester scenario");
-		  URITestCase::install("A URI test",       "RDF scenario");
-		 NodeTestCase::install("B Node test",      "RDF scenario");
-		StmntTestCase::install("C Statement test", "RDF scenario");
-		ModelTestCase::install("D Model test",     "RDF scenario");
-		StoreTestCase::install("E Store test",     "RDF scenario");
-		   IOTestCase::install("F IO test",        "RDF scenario");
-		QueryTestCase::install("G Query test",     "RDF scenario");
+		    URITestCase::install("A URI test",       "RDF scenario");
+		   NodeTestCase::install("B Node test",      "RDF scenario");
+		  StmntTestCase::install("C Statement test", "RDF scenario");
+		  ModelTestCase::install("D Model test",     "RDF scenario");
+		  StoreTestCase::install("E Store test",     "RDF scenario");
+		     IOTestCase::install("F IO test",        "RDF scenario");
+		  QueryTestCase::install("G Query test",     "RDF scenario");
+		LiteralTestCase::install("H Literal test", "RDF scenario");
 		  /*
 		*/
 

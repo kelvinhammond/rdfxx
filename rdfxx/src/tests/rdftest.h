@@ -126,6 +126,18 @@ public:
 
 // -------------------------------------------------------------------
 
+class LiteralTestCase : public SASSY::cdi::TestCaseT< LiteralTestCase >
+{
+protected:
+	rdf::World world;
+	bool runTest();
+public:
+	LiteralTestCase(csr nm);
+	~LiteralTestCase();
+};
+
+// -------------------------------------------------------------------
+
 class ExampleTestCase : public SASSY::cdi::TestCaseT<ExampleTestCase>
 {
 protected:

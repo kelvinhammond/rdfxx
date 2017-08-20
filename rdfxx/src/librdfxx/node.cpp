@@ -33,6 +33,211 @@ using namespace rdf;
 using namespace std;
 
 // -----------------------------------------------------------------------------
+//	Literal
+// -----------------------------------------------------------------------------
+
+Literal::Literal()
+	: mDataType( DataType::PlainLiteral )
+{}
+
+// -----------------------------------------------------------------------------
+
+Literal::Literal( const std::string &val )
+	: mLanguage("en"), mDataType( DataType::PlainLiteral ),
+	  mValue(val)
+{}
+
+// -----------------------------------------------------------------------------
+
+Literal::Literal( const std::string &val, const std::string &lang )
+	: mLanguage(lang), mDataType( DataType::PlainLiteral ),
+	  mValue(val)
+{}
+
+// -----------------------------------------------------------------------------
+
+Literal::Literal( const std::string &val, DataType dt, const std::string &lang )
+	: mLanguage(lang), mDataType( dt ),
+	  mValue(val)
+{}
+
+// -----------------------------------------------------------------------------
+
+Literal::Literal( int x, DataType dt )
+	: mDataType(dt)
+{
+	mValue = std::to_string( x );
+}
+
+// -----------------------------------------------------------------------------
+
+Literal::Literal( double x, DataType dt )
+	: mDataType(dt)
+{
+	mValue = std::to_string(x);
+	string::size_type p = mValue.find('.');
+	if ( p != string::npos )
+	{
+		p = mValue.find_last_not_of("0");
+		if ( p != string::npos )
+		{
+			mValue = mValue.substr(0,p+1);
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+
+Literal::Literal( bool x)
+	: mDataType(DataType::Boolean)
+{
+	mValue = (x ? "true" : "false");
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+Literal::toString() const
+{
+	Format format = { false, false, "", true, true, "en", true };
+	return toString( format );
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+Literal::toString( const Format &format ) const
+{
+	string s( mValue );
+	if ( format.quotes )
+	{
+		s = "\"" + s + "\"";
+	}
+	if ( mDataType == DataType::PlainLiteral
+		&& format.showLanguage )
+	{
+		s += "@" + mLanguage;
+	}
+	if ( mDataType != DataType::PlainLiteral )
+	{
+		s += "^^" + toXSD( mDataType );
+	}
+	return s;
+}
+
+// -----------------------------------------------------------------------------
+
+Node
+Literal::toNode()
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+URI
+Literal::dataTypeURI() const
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+int
+Literal::asInteger() const
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+double
+Literal::asDouble() const
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+// static
+std::string
+Literal::toXSD( DataType dt )
+{
+	if ( xsd_types.empty()) initXSDtypes();
+	return xsd_types[ dt ];
+}
+
+// -----------------------------------------------------------------------------
+
+// static
+DataType
+Literal::toDataType( const std::string & xsd_type )
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+std::map< DataType, std::string > Literal::xsd_types;
+
+// static
+void
+Literal::initXSDtypes()
+{
+	xsd_types =
+	{
+        	{ DataType::PlainLiteral, "rdf:PlainLiteral" },
+        	{ DataType::XMLLiteral, "rdf:XMLLiteral" },
+        	{ DataType::XHTML, "rdf:HTML" },
+
+        	{ DataType::String, "xsd:string" },
+        	{ DataType::Boolean, "xsd:boolean" },
+        	{ DataType::Decimal, "xsd:decimal" },
+        	{ DataType::Integer, "xsd:integer" },
+
+        	{ DataType::Double, "xsd:double" },
+        	{ DataType::Float, "xsd:float" },
+
+        	{ DataType::Data, "xsd:date" },
+        	{ DataType::Time, "xsd:time" },
+        	{ DataType::DateTime, "xsd:dateTime" },
+        	{ DataType::DateTimeStamp, "xsd:dateTimeStamp" },
+
+        	{ DataType::Year, "xsd:gYear" },
+        	{ DataType::Month, "xsd:gMonth" },
+        	{ DataType::Day, "xsd:gDay" },
+        	{ DataType::YearMonth, "xsd:gYearMonth" },
+        	{ DataType::MonthDay, "xsd:gMonthDay" },
+        	{ DataType::Duration, "xsd:duration" },
+        	{ DataType::YearMonthDuration, "xsd:yearMonthDuration" },
+        	{ DataType::DayTimeDuration, "xsd:dayTimeDuration" },
+
+        	{ DataType::Byte, "xsd:byte" },
+        	{ DataType::Short, "xsd:short" },
+        	{ DataType::Int, "xsd:int" },
+        	{ DataType::Long, "xsd:long" },
+        	{ DataType::UnsignedByte, "xsd:unsignedByte" },
+        	{ DataType::UnsignedShort, "xsd:unsignedShort" },
+        	{ DataType::UnsignedLong, "xsd:unsignedLong" },
+        	{ DataType::PositiveInteger, "xsd:positiveInteger" },
+        	{ DataType::NonNegativeInteger, "xsd:nonNegativeInteger" },
+        	{ DataType::NegativeInteger, "xsd:negativeInteger" },
+        	{ DataType::NonPositiveInteger, "xsd:nonPositiveInteger" },
+
+        	{ DataType::HexBinary, "xsd:hexBinary" },
+        	{ DataType::Base64Binary, "xsd:base64Binary" },
+
+        	{ DataType::AnyURI, "xsd:anyURI" },
+        	{ DataType::Language, "xsd:language" },
+        	{ DataType::NormalizedString, "xsd:normalizedString" },
+        	{ DataType::Token, "xsd:token" },
+        	{ DataType::NMTOKEN, "xsd:NMTOKEN" },
+        	{ DataType::Name, "xsd:Name" },
+        	{ DataType::NCName, "xsd:NCName" }
+	};
+}
+
+// -----------------------------------------------------------------------------
 //	Node
 // -----------------------------------------------------------------------------
 

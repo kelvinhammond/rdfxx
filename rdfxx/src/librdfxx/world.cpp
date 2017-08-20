@@ -69,10 +69,15 @@ Prefixes::Prefixes( World _w)
 	: world(_w)
 {
 	librdf_world*w = DEREF( World, librdf_world, _w );
+	
 	URI rdf_uri( new _URI( librdf_get_concept_ms_namespace( w )));
 	insert( "rdf", rdf_uri );
+
 	URI rdfs_uri( new _URI( librdf_get_concept_schema_namespace(w)));
 	insert( "rdfs", rdfs_uri );
+
+	URI xsd_uri( new _URI( World(world), "http://www.w3.org/2001/XMLSchema#"));
+	insert( "xsd", xsd_uri );
 }
 
 // ----------------------------------------------------------------------------

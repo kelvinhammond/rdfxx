@@ -9,12 +9,18 @@ YYYY-MM-DD  John Doe  <johndoe@example.com>
 	* anotherfile.ext (somefunction): more changes
 
 Future
-	* RDFS concepts
+	* Internationalisation
 	* Postgresql storage
-	* Edges
 	* Submodels
+	* RDFS concepts
+	* Blank nodes
+	* Edges
 	* Literals and Datatypes
-	* Prefixes and namespaces
+
+2017-08-18	Brenton Ross
+
+	* all: Prefixes and namespaces now can be used when converting nodes
+		to strings.
 
 2017-08-16	Brenton Ross
 

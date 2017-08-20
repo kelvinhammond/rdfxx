@@ -237,6 +237,7 @@ public:
 
 class Universe
 {
+	// see world.cpp for the implementation
 private:
 	Universe(){}
 	std::map< std::string, World > worlds;
@@ -268,6 +269,7 @@ struct Format
 
 class Prefixes
 {
+	// see world.cpp for the implementation
 private:
 	WorldRef world;
 	URI base_uri;
@@ -284,6 +286,116 @@ public:
 	void insert( const std::string &prefix, URI );
 	URI find( const std::string & );
 	std::string find( URI );
+};
+
+// ---------------------------------------------------------------
+
+enum class DataType
+{
+	PlainLiteral,	// default
+	XMLLiteral,
+	XHTML,		// must be valid well formed XML fragment
+
+	// Core Types
+	String,
+	Boolean,
+	Decimal,
+	Integer,
+
+	// IEEE floating point
+	Double,
+	Float,
+
+	// Time and Data
+	Data,
+	Time,
+	DateTime,
+	DateTimeStamp,
+
+	// Recurring and partial dates
+	Year,
+	Month,
+	Day,
+	YearMonth,
+	MonthDay,
+	Duration,
+	YearMonthDuration,
+	DayTimeDuration,
+
+	// Limited range integers
+	Byte,
+	Short,
+	Int,
+	Long,
+	UnsignedByte,
+	UnsignedShort,
+	UnsignedLong,
+	PositiveInteger,
+	NonNegativeInteger,
+	NegativeInteger,
+	NonPositiveInteger,
+
+	// Encoded binary data
+	HexBinary,
+	Base64Binary,
+
+	// Miscellaneous
+	AnyURI,
+	Language,
+	NormalizedString,
+	Token,
+	NMTOKEN,
+	Name,
+	NCName
+};
+
+// ---------------------------------------------------------------
+
+// 
+// This object holds the various components of an RDF or XML literal
+// value. This includes the value, the language, and the data type.
+//
+
+class Literal
+{
+	// see node.cpp for the implementation
+	static std::map< DataType, std::string > xsd_types;
+	static void initXSDtypes();
+private:
+
+	std::string mLanguage;		// eg "en" for English
+	DataType    mDataType;
+
+	std::string mValue;
+
+public:
+	Literal();	// empty
+	Literal( const std::string &val );	// plain, English
+	Literal( const std::string &val, const std::string &lan );	// plain
+	Literal( const std::string &val, DataType, const std::string &lan = "en" );
+	Literal( int, DataType );
+	Literal( double, DataType );
+	Literal( bool );
+
+	void language( const std::string & lang ) { mLanguage = lang; }
+	void dataType( DataType t ) { mDataType = t; }
+	void value( const std::string & v ) { mValue = v; }
+
+	std::string toString() const;
+	std::string toString( const Format & ) const;
+	Node toNode();
+
+	DataType dataType() const { return mDataType; }
+	URI dataTypeURI() const;
+	std::string language() const { return mLanguage; }
+
+	std::string asString() const { return mValue; }
+	int asInteger() const;
+	double asDouble() const;
+	// TODO - more conversions as required
+
+	static std::string toXSD( DataType );
+	static DataType toDataType( const std::string & xsd_type );
 };
 
 // ---------------------------------------------------------------
