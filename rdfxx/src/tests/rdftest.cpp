@@ -634,7 +634,7 @@ LiteralTestCase::runTest()
 	try {
 		cout << "---------- begin literal tests ---------- " << endl;
 		Literal L1;
-		rc = rc && test( L1.dataType() == DataType::PlainLiteral, "literal 1");
+		rc = rc && test( L1.dataType() == DataType::UNDEF, "literal 1");
 
 		Literal L2(string("hello world"));
 		rc = rc && test( L2.dataType() == DataType::PlainLiteral, "literal 2");
@@ -669,6 +669,15 @@ LiteralTestCase::runTest()
 		rc = rc && test( L7.toString() == "\"true\"^^xsd:boolean", "literal 20");
 		rc = rc && test( L6.toString() == "\"23.7\"^^xsd:float", "literal 21");
 		rc = rc && test( L4.toString() == "\"hello to the world\"^^xsd:string", "literal 22");
+
+		rc = rc && test( Literal::toDataType("xsd:boolean") == DataType::Boolean, "literal 23");
+		rc = rc && test( L5.asInteger() == 23, "literal 24");
+		rc = rc && test( L6.asDouble() == 23.7, "literal 25");
+		rc = rc && test( L7.asBoolean(), "literal 26");
+
+		cout << L5.dataTypeURI( world )->toString() << endl;
+		rc = rc && test( L5.dataTypeURI( world )->toString() 
+					== "http://www.w3.org/2001/XMLSchema#integer", "literal 27");
 
 		cout << "---------- end literal tests ---------- " << endl;
 	}

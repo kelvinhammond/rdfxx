@@ -59,6 +59,7 @@ class Stream_;
 class URI_;
 
 class QueryString;
+class Literal;
 
 //
 // Shared pointers for use by the client applications
@@ -149,6 +150,7 @@ public:
 	Node( Node_* );
 	Node( NodeRef );
 	Node( World, URI );
+	Node( World, const Literal & );
 	Node( World, const std::string & uri );
 
 	// _is_wf_xml - true if its well formed XML
@@ -240,6 +242,8 @@ class Universe
 	// see world.cpp for the implementation
 private:
 	Universe(){}
+
+	// TODO - protect with mutex
 	std::map< std::string, World > worlds;
 public:
 	static Universe& instance();
@@ -292,6 +296,7 @@ public:
 
 enum class DataType
 {
+	UNDEF,		// use when cannot find a match
 	PlainLiteral,	// default
 	XMLLiteral,
 	XHTML,		// must be valid well formed XML fragment
@@ -370,12 +375,12 @@ private:
 
 public:
 	Literal();	// empty
-	Literal( const std::string &val );	// plain, English
+	explicit Literal( const std::string &val );	// plain, English
 	Literal( const std::string &val, const std::string &lan );	// plain
 	Literal( const std::string &val, DataType, const std::string &lan = "en" );
 	Literal( int, DataType );
 	Literal( double, DataType );
-	Literal( bool );
+	explicit Literal( bool );
 
 	void language( const std::string & lang ) { mLanguage = lang; }
 	void dataType( DataType t ) { mDataType = t; }
@@ -383,15 +388,15 @@ public:
 
 	std::string toString() const;
 	std::string toString( const Format & ) const;
-	Node toNode();
 
 	DataType dataType() const { return mDataType; }
-	URI dataTypeURI() const;
+	URI dataTypeURI( World ) const;
 	std::string language() const { return mLanguage; }
 
 	std::string asString() const { return mValue; }
 	int asInteger() const;
 	double asDouble() const;
+	bool asBoolean() const;
 	// TODO - more conversions as required
 
 	static std::string toXSD( DataType );

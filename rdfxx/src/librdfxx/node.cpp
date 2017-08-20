@@ -37,7 +37,7 @@ using namespace std;
 // -----------------------------------------------------------------------------
 
 Literal::Literal()
-	: mDataType( DataType::PlainLiteral )
+	: mDataType( DataType::UNDEF )
 {}
 
 // -----------------------------------------------------------------------------
@@ -127,18 +127,16 @@ Literal::toString( const Format &format ) const
 
 // -----------------------------------------------------------------------------
 
-Node
-Literal::toNode()
-{
-	throw VX(Code) << "not implemented";
-}
-
-// -----------------------------------------------------------------------------
-
 URI
-Literal::dataTypeURI() const
+Literal::dataTypeURI( World w ) const
 {
-	throw VX(Code) << "not implemented";
+	if ( mDataType == DataType::UNDEF )
+		throw VX(Code) << "Literal not initialised";
+	string s = toXSD( mDataType );
+	string::size_type p = s.find(':');
+	URI s2(w, s.substr(0,p+1));
+	URI base_uri = w->prefixes().find( s.substr(0,p ));
+	return URI( s, s2, base_uri );
 }
 
 // -----------------------------------------------------------------------------
@@ -146,7 +144,7 @@ Literal::dataTypeURI() const
 int
 Literal::asInteger() const
 {
-	throw VX(Code) << "not implemented";
+	return std::stoi( mValue );
 }
 
 // -----------------------------------------------------------------------------
@@ -154,7 +152,15 @@ Literal::asInteger() const
 double
 Literal::asDouble() const
 {
-	throw VX(Code) << "not implemented";
+	return std::stod( mValue );
+}
+
+// -----------------------------------------------------------------------------
+
+bool
+Literal::asBoolean() const
+{
+	return ( mValue == "true" );
 }
 
 // -----------------------------------------------------------------------------
@@ -173,7 +179,15 @@ Literal::toXSD( DataType dt )
 DataType
 Literal::toDataType( const std::string & xsd_type )
 {
-	throw VX(Code) << "not implemented";
+	//
+	// converting string to datatype is probably something
+	// for the UI. Hence we can afford to use a slower reverse lookup
+	//
+	for ( auto &x : xsd_types )
+	{
+		if ( x.second == xsd_type ) return x.first;
+	}
+	return DataType::UNDEF;
 }
 
 // -----------------------------------------------------------------------------
@@ -265,6 +279,12 @@ Node::Node( World w, URI _uri )
 
 // -----------------------------------------------------------------------------
 
+Node::Node( World w, const Literal &L )
+	: std::shared_ptr< Node_ >( new _Node( w, L ))
+{}
+
+// -----------------------------------------------------------------------------
+
 Node::Node( World w, const std::string & uri )
 	: std::shared_ptr< Node_ >( new _Node(w, uri) )
 {}
@@ -351,6 +371,40 @@ _Node::_Node( World _w, URI _uri)
     	node = librdf_new_node_from_uri(w, uri);
     	if(!node)
 		throw VX(Error) << "Failed to allocate node";
+}
+
+// -----------------------------------------------------------------------------
+
+_Node::_Node( World _w, const Literal & L )
+	: world(_w), node(0), free(true)
+{
+	librdf_world *w = DEREF( World, librdf_world, _w );
+
+	if ( L.dataType() == DataType::PlainLiteral )
+	{
+    		node = librdf_new_node_from_literal(w, (const unsigned char*) L.asString().c_str(),
+    			L.language().c_str(), 0);
+    		if(!node)
+			throw VX(Error) << "Failed to allocate node";
+	}
+	else if ( L.dataType() == DataType::XMLLiteral
+			|| L.dataType() == DataType::XHTML )
+	{
+    		node = librdf_new_node_from_literal(w, (const unsigned char*) L.asString().c_str(),
+    			"", 1);
+    		if(!node)
+			throw VX(Error) << "Failed to allocate node";
+	}
+	else
+	{
+		librdf_uri *type_uri = DEREF( URI, librdf_uri, L.dataTypeURI(_w));
+
+		node = librdf_new_node_from_typed_literal( w, (const unsigned char*) L.asString().c_str(),
+				"", type_uri );
+    		if(!node)
+			throw VX(Error) << "Failed to allocate node";
+	}
+
 }
 
 // -----------------------------------------------------------------------------

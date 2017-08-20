@@ -93,6 +93,8 @@ class _Node : public Node_
      */
     _Node( World,  URI _uri);
 
+    _Node( World, const Literal & );
+
     //! RDF C++ Node constructor.
     /*! Initializes a new Node object with a given URI.
      *  Throws AllocationError if allocation/initialization failed. 
