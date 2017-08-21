@@ -527,6 +527,31 @@ _Node::toString( const Format & format ) const
 
 		}
 	}
+	else if ( librdf_node_is_literal(node))
+	{
+		s.assign((char *) librdf_node_get_literal_value(node));
+		if ( format.quotes )
+		{
+			s = "\"" + s + "\"";
+		}
+		if ( format.showLanguage )
+		{
+			char *lang = librdf_node_get_literal_value_language( node );
+			if ( lang )
+			{
+				s += "@";
+				s += lang;
+			}
+		}
+		if ( format.showDataType )
+		{
+			librdf_uri *dturi = librdf_node_get_literal_value_datatype_uri( node );
+			if ( dturi )
+			{
+				s += "^^";
+			}
+		}
+	}
 	if ( s.empty() ) s = toString();
 	return s;
 }

@@ -50,6 +50,7 @@ class _Model : public Model_
     librdf_model* model;	// owned
     librdf_storage *storage;	// owned
 
+	void nodeIteratorToVector( librdf_iterator *, std::vector< Node > & );
  
     // -------------------------------------------------------------------------
     public:
@@ -148,6 +149,13 @@ class _Model : public Model_
      *  @return False on failure.
      */
     bool contains(Statement statement) const;
+
+	virtual std::vector< Node > predicates( Node subject, Node object );
+	virtual std::vector< Node > objects( Node subject, Node predicate );
+	virtual std::vector< Node > subjects( Node predicate, Node object );
+
+	virtual std::vector< Node > arcsIn( Node object );
+	virtual std::vector< Node > arcsOut( Node subject );
  
     // This is used internally for the C API.
     operator librdf_model*() const;

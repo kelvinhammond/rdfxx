@@ -218,6 +218,114 @@ _Model::contains(Statement _statement) const
 
 // -----------------------------------------------------------------------------
 
+std::vector< Node >
+_Model::predicates( Node subject, Node object )
+{
+	librdf_node *s = DEREF( Node, librdf_node, subject );
+	librdf_node *o = DEREF( Node, librdf_node, object );
+	
+	std::vector< Node > nodes;
+	librdf_iterator *iter = librdf_model_get_arcs( model, s, o );
+	if ( iter )
+	{
+		nodeIteratorToVector( iter, nodes );
+		return nodes;
+	}
+	else
+		throw VX(Error) << "Failed to get predicates";
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector< Node >
+_Model::objects( Node subject, Node predicate )
+{
+	librdf_node *s = DEREF( Node, librdf_node, subject );
+	librdf_node *p = DEREF( Node, librdf_node, predicate );
+	
+	std::vector< Node > nodes;
+	librdf_iterator *iter = librdf_model_get_targets( model, s, p );
+	if ( iter )
+	{
+		nodeIteratorToVector( iter, nodes );
+		return nodes;
+	}
+	else
+		throw VX(Error) << "Failed to get predicates";
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector< Node >
+_Model::subjects( Node predicate, Node object )
+{
+	librdf_node *p = DEREF( Node, librdf_node, predicate );
+	librdf_node *o = DEREF( Node, librdf_node, object );
+	
+	std::vector< Node > nodes;
+	librdf_iterator *iter = librdf_model_get_sources( model, p, o );
+	if ( iter )
+	{
+		nodeIteratorToVector( iter, nodes );
+		return nodes;
+	}
+	else
+		throw VX(Error) << "Failed to get predicates";
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector< Node >
+_Model::arcsIn( Node object )
+{
+	librdf_node *o = DEREF( Node, librdf_node, object );
+	
+	std::vector< Node > nodes;
+	librdf_iterator *iter = librdf_model_get_arcs_in( model, o );
+	if ( iter )
+	{
+		nodeIteratorToVector( iter, nodes );
+		return nodes;
+	}
+	else
+		throw VX(Error) << "Failed to get predicates";
+}
+
+// -----------------------------------------------------------------------------
+
+std::vector< Node >
+_Model::arcsOut( Node subject )
+{
+	librdf_node *s = DEREF( Node, librdf_node, subject );
+	
+	std::vector< Node > nodes;
+	librdf_iterator *iter = librdf_model_get_arcs_out( model, s );
+	if ( iter )
+	{
+		nodeIteratorToVector( iter, nodes );
+		return nodes;
+	}
+	else
+		throw VX(Error) << "Failed to get predicates";
+}
+
+// -----------------------------------------------------------------------------
+
+void 
+_Model::nodeIteratorToVector( librdf_iterator *iter, std::vector< Node > & nodes )
+{
+	while( ! librdf_iterator_end( iter ))
+	{
+		librdf_node *x = (librdf_node*)librdf_iterator_get_object( iter );
+		Node n( new _Node( world, librdf_new_node_from_node(x), true ));
+		nodes.push_back(n);
+		librdf_iterator_next( iter );
+	}
+}
+
+// -----------------------------------------------------------------------------
+
 _Model::operator librdf_model*() const
 {
     return model;

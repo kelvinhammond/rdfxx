@@ -447,7 +447,13 @@ public:
 	virtual bool update( Statement old, Statement _new ) = 0;
 	virtual bool contains( Statement )const = 0;
 
-	// TODO - lots of useful functions for navigating the graph.
+	// lots of useful functions for navigating the graph.
+	virtual std::vector< Node > predicates( Node subject, Node object ) = 0;
+	virtual std::vector< Node > objects( Node subject, Node predicate ) = 0;
+	virtual std::vector< Node > subjects( Node predicate, Node object ) = 0;
+
+	virtual std::vector< Node > arcsIn( Node object ) = 0;
+	virtual std::vector< Node > arcsOut( Node subject ) = 0;
 	
 	// TODO - add and remove sub-models
 };

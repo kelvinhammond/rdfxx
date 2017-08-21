@@ -38,6 +38,7 @@ AC_CONFIG_FILES([
 	src/librdfxx/Makefile
 	src/tests/Makefile
 	src/examples/Makefile
+	src/rdf2dot/Makefile
 	])
 
 AC_OUTPUT

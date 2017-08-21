@@ -1,1 +1,1 @@
-SUBDIRS = include librdfxx tests examples
+SUBDIRS = include librdfxx tests examples rdf2dot
