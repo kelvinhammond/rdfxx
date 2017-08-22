@@ -53,7 +53,7 @@ Parser::Parser( World w, const std::string & name, URI syntax_uri )
 // -----------------------------------------------------------------------------
 
 _Parser::_Parser( World _w, const std::string& _name, const std::string& _syntax_mime)
-	 : parser(0)
+	 : world(_w), parser(0)
 {
     // _World& world = _World::instance();
     	librdf_world* world = DEREF( World, librdf_world, _w);
@@ -66,7 +66,7 @@ _Parser::_Parser( World _w, const std::string& _name, const std::string& _syntax
 // -----------------------------------------------------------------------------
 
 _Parser::_Parser( World _w, const std::string& _name, URI _syntax_uri)
-	 : parser(0)
+	 : world(_w), parser(0)
 {
     // _World& world = _World::instance();
     	librdf_world* world = DEREF( World, librdf_world, _w);
@@ -80,12 +80,25 @@ _Parser::_Parser( World _w, const std::string& _name, URI _syntax_uri)
 // -----------------------------------------------------------------------------
 
 bool
-_Parser::parseIntoModel(Model _model, URI _file, URI _base_uri)
+_Parser::parseIntoModel( Model _model, URI _file, URI _base_uri)
 {
 	_Model* m = static_cast< _Model * >( _model.get() );
 	_URI * u  = static_cast< _URI * >( _file.get());
 	_URI * bu = static_cast< _URI * >( _base_uri.get());
-	return (librdf_parser_parse_into_model(parser, *u, *bu, *m) == 0) ? true : false;
+	bool rc = (librdf_parser_parse_into_model(parser, *u, *bu, *m) == 0) ? true : false;
+
+	// 
+	// update the prefixes with those that were seen
+	//
+	int n = librdf_parser_get_namespaces_seen_count( parser );
+	for ( int i=0; i<n; i++ )
+	{
+		const char *prfx = librdf_parser_get_namespaces_seen_prefix( parser, i );
+		URI ns( new _URI( librdf_parser_get_namespaces_seen_uri( parser, i )));
+		world->prefixes().insert( string(prfx), ns );
+	}
+
+	return rc;
 }
 
 // -----------------------------------------------------------------------------

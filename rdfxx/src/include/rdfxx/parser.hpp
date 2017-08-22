@@ -43,6 +43,7 @@ namespace rdf
 class _Parser : public Parser_
 {
  private:
+    World world;
     librdf_parser* parser;
  
  public:

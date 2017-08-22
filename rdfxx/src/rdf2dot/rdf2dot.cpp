@@ -38,6 +38,7 @@ using namespace rdf;
 map< string, string > nodes;	// map id to label
 map< string, string > ids;	// map labels to ids
 vector< pair< string, string > > edges;
+Model model;
 
 // -------------------------------------------------------------------------
 
@@ -45,12 +46,13 @@ void
 parseRDFfile( const Path &path )
 {
 	static int count = 1;
-	World world = Universe::instance().world("test");
-	world->prefixes().base( URI( string(path) + "#", world));
-	world->prefixes().insert("w3c", URI(world,"http://www.w3.org/2000/03/example/classes#"));
+	World world = Universe::instance().world("rdf2dot");
+
+	URI uri( string(path), world );
+	Parser parser( world, "guess" );
+	parser->parseIntoModel( model, uri, uri );
 
 	Format format = { true, true, "blank", false, false, "en", false };
-	Model model(world, "file", path );
 	Stream strm = model->toStream();
 	while ( ! strm->end() )
 	{
@@ -59,9 +61,17 @@ parseRDFfile( const Path &path )
 		Node pred( st->predicate());
 		Node obj( st->object());
 
-		string sid = string("n") + std::to_string(count++);
+		string sid;
+		if ( subj->isBlank() )
+			sid = string("b") + std::to_string(count++);
+		else
+			sid = string("n") + std::to_string(count++);
 		string pid = string("p") + std::to_string(count++);
-		string oid = string("n") + std::to_string(count++);
+		string oid; 
+		if ( obj->isBlank())
+			oid = string("b") + std::to_string(count++);
+		else
+			oid = string("n") + std::to_string(count++);
 
 		string subjs( subj->toString(format));
 		string preds( pred->toString(format));
@@ -99,10 +109,18 @@ makeDot()
 
 	for( auto &n : nodes )
 	{
-		if ( n.second[0] == 'n' )
+		switch ( n.first[0] )
+		{
+		case 'n':
 			cout << "\t" << n.first << "[label=\"" << n.second << "\"]" << ";\n";
-		else
+			break;
+		case 'p':
 			cout << "\t" << n.first << " [shape=box, label=\"" << n.second << "\"];\n";
+			break;
+		case 'b':
+			cout << "\t" << n.first << " [label=\"  \"];\n";
+			break;
+		}
 	}
 	cout << "\n" << endl;
 
@@ -133,9 +151,16 @@ int main( int argc, char *argv[] )
 	{
 		cerr << "expected RDF file name" << endl;
 		return 1;
-	}
+	} 
+	Path path(argv[1]);
 
-	parseRDFfile( Path(argv[1]) );
+	World world = Universe::instance().world("rdf2dot");
+	world->prefixes().base( URI( string(path) + "#", world));
+	world->prefixes().insert("w3c", URI(world,"http://www.w3.org/2000/03/example/classes#"));
+
+	model = Model(world, "memory" );
+
+	parseRDFfile( path );
 	makeDot();
 
 	return EXIT_SUCCESS;
