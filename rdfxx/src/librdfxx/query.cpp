@@ -57,7 +57,7 @@ _Query::_Query(World _w, const string & _query_string, const std::string& _lang)
     // _World& world = _World::instance();
     librdf_world* w = DEREF( World, librdf_world, _w );
     
-    query = librdf_new_query(w, _lang.c_str(), 0, (unsigned char*) _query_string.c_str(), _URI());
+    query = librdf_new_query(w, _lang.c_str(), 0, (unsigned char*) _query_string.c_str(), NULL);
     if(!query)
 	throw VX(Error) << "Failed to allocate query";
 }

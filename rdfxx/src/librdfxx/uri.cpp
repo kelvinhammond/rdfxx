@@ -37,9 +37,11 @@ using namespace std;
 //	URI
 // -----------------------------------------------------------------------------
 
+/*
 URI::URI()
 	: std::shared_ptr< URI_ >( new _URI )
 {}
+*/
 
 // -----------------------------------------------------------------------------
 
@@ -75,9 +77,11 @@ URI::URI( URI base_uri, const std::string &uri_string )
 //	_URI
 // -----------------------------------------------------------------------------
 
+/*
 _URI::_URI()
 	: uri(0)
 {}
+*/
 
 // -----------------------------------------------------------------------------
 
@@ -223,7 +227,7 @@ _URI::toFileName() const
 bool
 _URI::operator ==(_URI& _uri) const
 {
-    return (librdf_uri_equals(uri, _uri) == 0) ? false : true;
+	return (librdf_uri_equals(uri, _uri) == 0) ? false : true;
 }
 
 // -----------------------------------------------------------------------------
@@ -231,8 +235,9 @@ _URI::operator ==(_URI& _uri) const
 bool
 _URI::operator ==( URI _uri ) const
 {
+	if ( _uri == std::shared_ptr<URI_>(nullptr) ) return false;
 	librdf_uri *u = DEREF( URI, librdf_uri, _uri );
-    return (librdf_uri_equals(uri, u) == 0) ? false : true;
+	return (librdf_uri_equals(uri, u) == 0) ? false : true;
 }
 
 // -----------------------------------------------------------------------------

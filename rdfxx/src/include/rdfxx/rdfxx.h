@@ -34,6 +34,9 @@
 
 #include <rdfxx/except.h>
 
+// remove once Node no longer required
+#define USE_NODE 1
+
 namespace rdf
 {
 
@@ -49,6 +52,11 @@ namespace rdf
 class World_;
 class Model_;
 class Node_;
+#if ! USE_NODE
+class ResourceNode_;
+class LiteralNode_;
+class BlankNode_;
+#endif // USE_NODE
 class Parser_;
 class Query_;
 class QueryResults_;
@@ -80,7 +88,7 @@ using StatementRef = std::shared_ptr< Statement_ >;
 class URI : public std::shared_ptr< URI_ >
 {
 public:
-	URI();
+	URI() : std::shared_ptr< URI_ >( nullptr ) {}
 	URI( URI_* );
 	URI( World,  const std::string &uri_string );
 
@@ -142,22 +150,45 @@ public:
 
 // ---------------------------------------------------------------
 
+#if USE_NODE
 class Node : public std::shared_ptr< Node_ >
 {
 public:
-	Node();
-	Node( World );
+	Node();		// nullptr
+	Node( World );	// blank
 	Node( Node_* );
 	Node( NodeRef );
 	Node( World, URI );
 	Node( World, const Literal & );
-	Node( World, const std::string & uri );
+
+	// Node( World, const std::string & uri );
 
 	// _is_wf_xml - true if its well formed XML
 	// don't set _is_wf_xml true and have xml_language defined
-	Node( World, const std::string & literal, bool _is_wf_xml,
-			const std::string & xml_language = "" );
+	//Node( World, const std::string & literal, bool _is_wf_xml,
+	//		const std::string & xml_language = "" );
 };
+#else
+using Node = std::shared_ptr< Node_ >;
+
+class ResourceNode : public std::shared_ptr< ResourceNode_ >
+{
+public:
+	ResourceNode( World, URI );
+};
+
+class LiteralNode : public std::shared_ptr< LiteralNode_ >
+{
+public:
+	LiteralNode( World, const Literal & );
+};
+
+class BlankNode : public std::shared_ptr< BlankNode_ >
+{
+public:
+	BlankNode( World );
+};
+#endif
 
 // ---------------------------------------------------------------
 
@@ -302,56 +333,27 @@ enum class DataType
 	XHTML,		// must be valid well formed XML fragment
 
 	// Core Types
-	String,
-	Boolean,
-	Decimal,
-	Integer,
+	String, Boolean, Decimal, Integer,
 
 	// IEEE floating point
-	Double,
-	Float,
+	Double, Float,
 
 	// Time and Data
-	Data,
-	Time,
-	DateTime,
-	DateTimeStamp,
+	Data, Time, DateTime, DateTimeStamp,
 
 	// Recurring and partial dates
-	Year,
-	Month,
-	Day,
-	YearMonth,
-	MonthDay,
-	Duration,
-	YearMonthDuration,
+	Year, Month, Day, YearMonth, MonthDay, Duration, YearMonthDuration,
 	DayTimeDuration,
 
 	// Limited range integers
-	Byte,
-	Short,
-	Int,
-	Long,
-	UnsignedByte,
-	UnsignedShort,
-	UnsignedLong,
-	PositiveInteger,
-	NonNegativeInteger,
-	NegativeInteger,
-	NonPositiveInteger,
+	Byte, Short, Int, Long, UnsignedByte, UnsignedShort, UnsignedLong,
+	PositiveInteger, NonNegativeInteger, NegativeInteger, NonPositiveInteger,
 
 	// Encoded binary data
-	HexBinary,
-	Base64Binary,
+	HexBinary, Base64Binary,
 
 	// Miscellaneous
-	AnyURI,
-	Language,
-	NormalizedString,
-	Token,
-	NMTOKEN,
-	Name,
-	NCName
+	AnyURI, Language, NormalizedString, Token, NMTOKEN, Name, NCName
 };
 
 // ---------------------------------------------------------------
@@ -375,7 +377,8 @@ private:
 
 public:
 	Literal();	// empty
-	explicit Literal( const std::string &val );	// plain, English
+	Literal( const std::string &val );	// plain, English
+	Literal( const char *val ) : Literal(std::string(val)) {}
 	Literal( const std::string &val, const std::string &lan );	// plain
 	Literal( const std::string &val, DataType, const std::string &lan = "en" );
 	Literal( int, DataType );
@@ -478,6 +481,31 @@ public:
 };
 // TODO operator == (Node, Node)
 // TODO operator << ( ostream &, Node )
+
+#if ! USE_NODE
+
+class ResourceNode_ : public Node_
+{
+public:
+	virtual std::string toString() const = 0;
+	virtual std::string toString(const Format &) const = 0;
+	virtual URI toURI() const = 0;
+};
+
+class LiteralNode_ : public Node_
+{
+public:
+	virtual std::string toString() const = 0;
+	virtual std::string toString(const Format &) const = 0;
+	virtual Literal toLiteral() const = 0;
+};
+
+class BlankNode_ : public Node_
+{
+	virtual std::string toString() const = 0;
+	virtual std::string toString(const Format &) const = 0;
+};
+#endif // USE_NODE
 
 // ---------------------------------------------------------------
 
@@ -711,7 +739,6 @@ T* deref( std::shared_ptr<C> a )
 // and c is the shared pointer object.
 //
 #define DEREF( A, b, c ) deref< A##_, _##A, b >( c ) 
-
 
 } // namespace rdf
 

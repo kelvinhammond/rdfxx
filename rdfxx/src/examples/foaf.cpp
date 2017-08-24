@@ -46,10 +46,10 @@ int main(void)
         URI file_uri(world, "file:foaf.rdf");
 	cout << "created parser" << endl;
 
-        Node n1(world, "http://organise.org/ofw/0.4/categories/documents");
-        Node n2(world, "http://purl.org/dc/0.1/title");
-        Node n3(world, "Dokumente", false);
-        Node n4(world, "Documents", false);
+        Node n1(world, URI(world, "http://organise.org/ofw/0.4/categories/documents"));
+        Node n2(world, URI(world,"http://purl.org/dc/0.1/title"));
+        Node n3(world, Literal("Dokumente"));
+        Node n4(world, Literal("Documents"));
 	cout << "created nodes" << endl;
         
         Statement s1(world,n1,n2,n3);

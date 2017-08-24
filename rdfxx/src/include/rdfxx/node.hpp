@@ -42,7 +42,7 @@ namespace rdf
 // ============================================================================
 //! RDF C++ _Node
 // ============================================================================
-
+#if USE_NODE
 class _Node : public Node_
 {
     // ------------------------------------------------------------------------
@@ -145,6 +145,103 @@ class _Node : public Node_
     // This is used internally for the C API.
     operator librdf_node*() const;
 };
+
+#else	// USE_NODE
+// ------------------------------------------------------------------------
+
+class _NodeBase
+{
+protected:
+	World world;
+	librdf_node* node;		// owned except when free is false
+	bool free;
+
+	_NodeBase( World w, librdf_node *n, bool f)
+		: world(w), node(n), free(f) {}
+public:
+	Node copy() const;
+	std::string toString() const;
+
+	// This is used internally for the C API.
+	operator librdf_node*() const;
+
+	static librdf_node* derefNode( Node );
+
+	// construct _ResourceNode, _LiteralNode, or _BlankNode
+	// from librdf_node
+	static Node make( World, librdf_node*, bool freeOnDelete );
+};
+
+
+// ------------------------------------------------------------------------
+
+class _ResourceNode : public ResourceNode_, public _NodeBase
+{
+public:
+	_ResourceNode( World, URI );
+	_ResourceNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
+
+	Node copy() const { return _NodeBase::copy(); }
+
+	virtual std::string toString() const { return _NodeBase::toString(); }
+	virtual std::string toString(const Format &) const;
+	virtual URI toURI() const;
+
+	// this will be removed when _Node is removed.
+	virtual Literal toLiteral() const;
+
+	virtual bool isLiteral() const { return false; }
+	virtual bool isBlank() const { return false; }
+	virtual bool isResource() const { return true; }
+};
+
+// ------------------------------------------------------------------------
+
+class _LiteralNode : public LiteralNode_, public _NodeBase
+{
+public:
+	_LiteralNode( World, const Literal & );
+	_LiteralNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
+
+	Node copy() const { return _NodeBase::copy(); }
+	
+	virtual std::string toString() const { return _NodeBase::toString(); }
+	virtual std::string toString(const Format &) const;
+
+	// this will be removed when _Node is removed.
+	virtual URI toURI() const;
+	virtual Literal toLiteral() const;
+
+	virtual bool isLiteral() const { return true; }
+	virtual bool isBlank() const { return false; }
+	virtual bool isResource() const { return false; }
+};
+
+// ------------------------------------------------------------------------
+
+class _BlankNode : public BlankNode_, public _NodeBase
+{
+public:
+	_BlankNode( World );
+	_BlankNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
+
+	Node copy() const { return _NodeBase::copy(); }
+
+	virtual std::string toString() const { return _NodeBase::toString(); }
+	virtual std::string toString(const Format &) const;
+
+	// these will be removed when _Node is removed.
+	virtual URI toURI() const;
+	virtual Literal toLiteral() const;
+
+	virtual bool isLiteral() const { return false; }
+	virtual bool isBlank() const { return true; }
+	virtual bool isResource() const { return false; }
+};
+
+#endif
+// ------------------------------------------------------------------------
+
 
 } // namespace rdf
 #endif

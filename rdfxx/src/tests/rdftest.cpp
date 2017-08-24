@@ -160,22 +160,22 @@ NodeTestCase::runTest()
 
 	try {
 		cout << "------------------ nodes --------------" << endl;
-		Node n1(world,"http://purl.org/dc/0.1/title");
+		Node n1(world,URI(world,"http://purl.org/dc/0.1/title"));
 		rc = rc && test( true, "node 1");
 		rc = rc && test( n1->isResource(), "node 2");
 		rc = rc && test( ! n1->isBlank(), "node 3");
 		rc = rc && test( ! n1->isLiteral(), "node 4");
 		Node n2(world);
 		rc = rc && test( n2->isBlank(), "node 5");
-		Node n3(world,"fred", false);
+		Node n3(world, Literal("fred"));
 		rc = rc && test( n3->isLiteral(), "node 6");
-		Node n4(world,"<dc:name>TestLog</dc:name>", true);
+		Node n4(world, Literal("<dc:name>TestLog</dc:name>", DataType::XMLLiteral));
 		rc = rc && test( n4->isLiteral(), "node 7");
-		Node n5(world,"<dc:name>TestLog</dc:name>", false, "en");
+		Node n5(world, Literal("<dc:name>TestLog</dc:name>", DataType::PlainLiteral, "en"));
 		rc = rc && test( n5->isLiteral(), "node 8");
-		Node n6(world,"fred", false, "en");
+		Node n6(world, Literal("fred", DataType::PlainLiteral, "en"));
 		rc = rc && test( n6->isLiteral(), "node 9");
-		Node n7(world,"http://purl.org/dc/0.1/title", false);
+		Node n7(world, Literal("http://purl.org/dc/0.1/title"));
 		rc = rc && test( !n7->isResource(), "node 10");
 		rc = rc && test( n7->isLiteral(), "node 12");
 
@@ -188,8 +188,8 @@ NodeTestCase::runTest()
 
 		URI uri2 = n9->toURI();
 		rc = rc && test( uri == uri2, "node 14");
-		rc = rc && test( n3->toString() == "\"fred\"", "node 15");
-		// cout << "n3 = \"" << n3->toString() << "\"" << endl;
+		rc = rc && test( n3->toString() == "\"fred\"@en", "node 15");
+		cout << "n3 = \"" << n3->toString() << "\"" << endl;
 
 		// confirm that Nodes can go into standard containers
 		vector< Node > node_list;
@@ -271,20 +271,20 @@ StmntTestCase::runTest()
 		Statement s1(world, n1, n1, n1 );
 		rc = rc && test( true, "stmnt 1");
 		rc = rc && test( ! s1->isComplete(), "stmnt 2");
-		Node n2(world,"fred", false);
-		Node n3(world,"isA", false);
-		Node n4(world,"moron", false );
+		Node n2(world, Literal("fred"));
+		Node n3(world, Literal("isA"));
+		Node n4(world, Literal("moron"));
 		s1->subject(n2);
 		rc = rc && test( ! s1->isComplete(), "stmnt 3");
 		NodeRef nr2 = s1->subject();
 		Node n5(nr2);
-		rc = rc && test( n5->toString() == "\"fred\"", "stmnt 4");
+		rc = rc && test( n5->toString() == "\"fred\"@en", "stmnt 4");
 		s1->predicate(n3);
 		n5 = Node(s1->predicate());
-		rc = rc && test( n5->toString() == "\"isA\"", "stmnt 5");
+		rc = rc && test( n5->toString() == "\"isA\"@en", "stmnt 5");
 		s1->object(n4);
 		n5 = Node(s1->object());
-		rc = rc && test( n5->toString() == "\"moron\"", "stmnt 6");
+		rc = rc && test( n5->toString() == "\"moron\"@en", "stmnt 6");
 
 		// this test is false because all the nodes are literals
 		rc = rc && test( ! s1->isComplete(), "stmnt 7");
@@ -293,7 +293,7 @@ StmntTestCase::runTest()
 		s1->subject(Node(world, uri));
 		rc = rc && test( Node(s1->subject())->toURI() == uri, "stmnt 8");
 
-		n3 = Node(world,"http://purl.org/dc/0.1/title");
+		n3 = Node(world,URI(world,"http://purl.org/dc/0.1/title"));
 		s1->predicate(n3);
 		rc = rc && test( s1->isComplete(), "stmnt 9");
 		
@@ -306,7 +306,8 @@ StmntTestCase::runTest()
 		rc = rc && test( s3 == s1, "stmnt 11");
 		
 		rc = rc && test( s1->toString() == 
-			"<http://organise.org/ofw/0.4/categories/documents> <http://purl.org/dc/0.1/title> \"moron\"", 
+			"<http://organise.org/ofw/0.4/categories/documents>"
+			" <http://purl.org/dc/0.1/title> \"moron\"@en", 
 			"stmnt 12");
 
 		// confirm that Statements can go into standard containers
@@ -350,9 +351,9 @@ ModelTestCase::runTest()
 		// cout << "model size is " << m1->size() << endl;
 		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
 		Node n1(world, uri );
-		Node n2(world,"http://purl.org/dc/0.1/title");
-		Node n3(world,"some literal value", false);
-		Node n4(world,"a different literal value", false );
+		Node n2(world, URI(world, "http://purl.org/dc/0.1/title"));
+		Node n3(world, Literal("some literal value"));
+		Node n4(world, Literal("a different literal value") );
 
 		Statement s1(world, n1, n2, n3 );
 		m1->add( n1, n2, n3 );

@@ -78,6 +78,10 @@ Prefixes::Prefixes( World _w)
 
 	URI xsd_uri( new _URI( World(world), "http://www.w3.org/2001/XMLSchema#"));
 	insert( "xsd", xsd_uri );
+
+	// this is a bit wrong - TODO - namespaces that don't have fragment (#)
+	URI dc_uri( new _URI( World(world), "http://purl.org/dc/elements/1.1/#"));
+	insert( "dc", xsd_uri );
 }
 
 // ----------------------------------------------------------------------------

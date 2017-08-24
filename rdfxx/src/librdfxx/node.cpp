@@ -254,7 +254,7 @@ Literal::initXSDtypes()
 // -----------------------------------------------------------------------------
 //	Node
 // -----------------------------------------------------------------------------
-
+#if USE_NODE
 Node::Node()
 	: std::shared_ptr< Node_ >( nullptr )
 {}
@@ -285,24 +285,54 @@ Node::Node( World w, const Literal &L )
 
 // -----------------------------------------------------------------------------
 
+/*
 Node::Node( World w, const std::string & uri )
 	: std::shared_ptr< Node_ >( new _Node(w, uri) )
 {}
+*/
 
 // -----------------------------------------------------------------------------
-
+/*
 Node::Node(World w, const std::string & literal, bool _is_wf_xml,
                         const std::string & xml_language )
 	: std::shared_ptr< Node_ >( new _Node( w, literal.c_str(), _is_wf_xml, 
 			xml_language.c_str() ))
 {}
-
+*/
 // -----------------------------------------------------------------------------
 
 Node::Node( NodeRef _ref )
 	: std::shared_ptr< Node_ >( _ref )
 {}
 
+#else	// USE_NODE
+
+// -----------------------------------------------------------------------------
+//	ResourceNode
+// -----------------------------------------------------------------------------
+
+ResourceNode::ResourceNode( World w, URI uri )
+	: std::shared_ptr< ResourceNode_ >( new _ResourceNode( w, uri ))
+{}
+
+// -----------------------------------------------------------------------------
+//	LiteralNode
+// -----------------------------------------------------------------------------
+
+LiteralNode::LiteralNode( World w, const Literal & L)
+	: std::shared_ptr< LiteralNode_ >( new _LiteralNode( w, L ))
+{}
+
+// -----------------------------------------------------------------------------
+//	BlankNode
+// -----------------------------------------------------------------------------
+
+BlankNode::BlankNode( World w )
+	: std::shared_ptr< BlankNode_ >( new _BlankNode( w ))
+{}
+#endif	// USE_NODE
+
+#if USE_NODE
 // -----------------------------------------------------------------------------
 //	_Node
 // -----------------------------------------------------------------------------
@@ -598,6 +628,296 @@ _Node::operator librdf_node*() const
 {
     return node;
 }
+#else
+
+// -----------------------------------------------------------------------------
+//	_NodeBase
+// -----------------------------------------------------------------------------
+
+Node
+_NodeBase::copy() const
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+// static
+librdf_node *
+_NodeBase::derefNode( Node a )
+{
+	librdf_node *t = nullptr;
+	_NodeBase *c = nullptr;
+	if ( a->isResource() )
+		c = static_cast< _ResourceNode * >( a.get());
+	else if ( a->isLiteral())
+		c = static_cast< _LiteralNode * >( a.get());
+	else
+		c = static_cast< _BlankNode * >( a.get());
+	if ( c ) t = *c;
+	return t;
+}
+
+// -----------------------------------------------------------------------------
+
+// static
+Node
+_NodeBase::make( World world, librdf_node *xn, bool freeOnDelete )
+{
+	Node n;
+	if ( librdf_node_is_resource(xn))
+	{
+		n = Node( new _ResourceNode( world, xn, freeOnDelete ));
+	}
+	else if ( librdf_node_is_literal(xn))
+	{
+		n = Node( new _LiteralNode( world, xn, freeOnDelete ));
+	}
+	else if ( librdf_node_is_blank(xn))
+	{
+		n = Node( new _BlankNode( world, xn, freeOnDelete ));
+	}
+	else
+		throw VX(Code) << "Unknown node type";
+	return n;
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+_NodeBase::toString() const
+{
+	string s;
+	char *str = NULL;
+	size_t len = 2;
+	librdf_world *w = DEREF( World, librdf_world, world );
+	raptor_world * rw = librdf_world_get_raptor(w);
+	if ( rw )
+	{
+		raptor_iostream *stream = raptor_new_iostream_to_string(rw, (void**)& str, &len, malloc );
+		librdf_node_write( node, stream );
+		raptor_free_iostream(stream);
+	}
+	else
+	{
+		cerr << "Failed to get raptor world" << endl;
+	}
+	if ( str ) s = str;
+	::free(str);
+    
+    // deprecated
+    // nstring = (const char*) librdf_node_to_string(node);
+
+    return s;
+}
+
+// -----------------------------------------------------------------------------
+//	_ResourceNode
+// -----------------------------------------------------------------------------
+
+_ResourceNode::_ResourceNode( World _w, URI _uri )
+	: _NodeBase( _w, 0, true )
+{
+    	// _World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
+    	librdf_uri *uri = DEREF( URI, librdf_uri, _uri );
+
+    	// Create a new node. User controls lifetime.
+    	node = librdf_new_node_from_uri(w, uri);
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+_ResourceNode::toString(const Format &format) const
+{
+	string s;
+	Prefixes &prefixes = world->prefixes();
+	if ( librdf_node_is_resource(node) )
+	{
+		URI uri = toURI();
+		if ( format.usePrefixes )
+		{
+			if ( prefixes.isBase( uri ))
+			{
+				s = prefixes.removeBase( uri );
+			}
+			else
+			{
+				string prefix = prefixes.find( uri );
+				if (! prefix.empty())
+				{
+					URI src = prefixes.find( prefix );
+					prefix.append(":");
+					URI res( uri->toString(), src, URI(world, prefix));
+					s = res->toString();
+				}
+			}
+		}
+		if ( s.empty())
+		{
+			if ( format.angleBrackets )
+			{
+				s += "<";
+				s += uri->toString();
+				s += ">";
+			}
+			else
+			{
+				s += uri->toString();
+			}
+
+		}
+	}
+	if ( s.empty() )
+		s = _NodeBase::toString();
+	return s;
+}
+
+// -----------------------------------------------------------------------------
+
+URI
+_ResourceNode::toURI() const
+{
+	// Get a reference pointer.
+	librdf_uri* u = librdf_node_get_uri(node);
+
+	// URI constructor makes a copy so user controls lifetime.
+	return URI( new _URI( u ));
+}
+
+// -----------------------------------------------------------------------------
+
+Literal
+_ResourceNode::toLiteral() const
+{
+	// TODO - remove this function
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+//	_LiteralNode
+// -----------------------------------------------------------------------------
+
+_LiteralNode::_LiteralNode( World _w, const Literal & L )
+	: _NodeBase( _w, 0, true )
+{
+	librdf_world *w = DEREF( World, librdf_world, _w );
+
+	if ( L.dataType() == DataType::PlainLiteral )
+	{
+    		node = librdf_new_node_from_literal(w, (const unsigned char*) L.asString().c_str(),
+    			L.language().c_str(), 0);
+    		if(!node)
+			throw VX(Error) << "Failed to allocate node";
+	}
+	else if ( L.dataType() == DataType::XMLLiteral
+			|| L.dataType() == DataType::XHTML )
+	{
+    		node = librdf_new_node_from_literal(w, (const unsigned char*) L.asString().c_str(),
+    			"", 1);
+    		if(!node)
+			throw VX(Error) << "Failed to allocate node";
+	}
+	else
+	{
+		librdf_uri *type_uri = DEREF( URI, librdf_uri, L.dataTypeURI(_w));
+
+		node = librdf_new_node_from_typed_literal( w, (const unsigned char*) L.asString().c_str(),
+				"", type_uri );
+    		if(!node)
+			throw VX(Error) << "Failed to allocate node";
+	}
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+_LiteralNode::toString(const Format & format) const
+{
+	string s;
+	s.assign((char *) librdf_node_get_literal_value(node));
+	if ( format.quotes )
+	{
+		s = "\"" + s + "\"";
+	}
+	if ( format.showLanguage )
+	{
+		char *lang = librdf_node_get_literal_value_language( node );
+		if ( lang )
+		{
+			s += "@";
+			s += lang;
+		}
+	}
+	if ( format.showDataType )
+	{
+		librdf_uri *dturi = librdf_node_get_literal_value_datatype_uri( node );
+		if ( dturi )
+		{
+			s += "^^";
+		}
+	}
+	if ( s.empty() ) s = _NodeBase::toString();
+	return s;
+}
+
+// -----------------------------------------------------------------------------
+
+URI
+_LiteralNode:: toURI() const
+{
+	throw VX(Code) << "wrong type of node";
+}
+
+// -----------------------------------------------------------------------------
+
+Literal
+_LiteralNode::toLiteral() const
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+//	_BlankNode
+// -----------------------------------------------------------------------------
+
+_BlankNode::_BlankNode( World _w )
+	: _NodeBase( _w, 0, true )
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+std::string
+_BlankNode::toString(const Format &) const
+{
+	return _NodeBase::toString();
+}
+
+// -----------------------------------------------------------------------------
+
+Literal
+_BlankNode::toLiteral() const
+{
+	throw VX(Code) << "not implemented";
+}
+
+// -----------------------------------------------------------------------------
+
+URI
+_BlankNode:: toURI() const
+{
+	throw VX(Code) << "wrong type of node";
+}
+#endif	// USE_NODE
+
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
 
 // -------------------------------------- end ------------------------------------
 
