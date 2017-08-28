@@ -51,6 +51,8 @@ class _Model : public Model_
     librdf_storage *storage;	// owned
 
 	void nodeIteratorToVector( librdf_iterator *, std::vector< Node > & );
+	// void updatePrefixes();	// update Prefixes from statements in the model
+	void savePrefixes();	// ensure all prefixes are recorded as statements in the model
  
     // -------------------------------------------------------------------------
     public:
@@ -94,6 +96,9 @@ class _Model : public Model_
      *  @return True if synchronization was successful.
      */
     bool sync();
+	
+	
+	void updatePrefixes();	// update Prefixes from statements in the model
 
     //! Serialise the model to a Stream.
     /*!

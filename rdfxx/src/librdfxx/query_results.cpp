@@ -259,6 +259,22 @@ _QueryResults::_QueryResults(World w, _Query& _query, _Model& _model)
 
 // -----------------------------------------------------------------------------
 
+_QueryResults::_QueryResults(World w, _Query& _query, librdf_model* _model)
+	 : world(w), query_results(0)
+{
+    query_results = librdf_query_execute(_query, _model);
+    if(!query_results)
+	throw VX(Error) << "Failed to allocate query results";
+
+    int status = librdf_query_results_finished(query_results);
+    if ( status )
+    	currIter = QueryResult( new _QueryResult );
+    else
+    	currIter = QueryResult( new _QueryResult( world, query_results ));
+}
+
+// -----------------------------------------------------------------------------
+
 _QueryResults::~_QueryResults()
 {
     if(query_results)

@@ -89,6 +89,7 @@ class _QueryResults : public QueryResults_
      *  @param _model The model to query. 
      */
     _QueryResults(World, _Query& _query, _Model& _model);
+    _QueryResults(World, _Query& _query, librdf_model* _model);
 
     //! RDF C++ QueryResults destructor.
     /*! Deletes the internally stored librdf_query_results object.

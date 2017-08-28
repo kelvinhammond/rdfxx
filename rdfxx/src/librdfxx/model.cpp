@@ -27,7 +27,10 @@
 
 
 #include <rdfxx/except.h>
+#include <rdfxx/rdfxx.h>
 #include <rdfxx/model.hpp>
+#include <rdfxx/query.hpp>
+#include <rdfxx/query_results.hpp>
 
 using namespace rdf;
 using namespace std;
@@ -70,18 +73,20 @@ _Model::_Model( World _w, const std::string & _storage_type, const std::string &
                 const std::string & _storage_options, const std::string & _model_options )
 	: world(_w)
 {
-    //_World& world = _World::instance();
-    librdf_world*w = DEREF( World, librdf_world, _w);
+	//_World& world = _World::instance();
+	librdf_world*w = DEREF( World, librdf_world, _w);
 
-    storage = librdf_new_storage(w,  _storage_type.c_str(), 
+	storage = librdf_new_storage(w,  _storage_type.c_str(), 
     			 _storage_name.c_str(),  _storage_options.c_str());
-    if(!storage)
-	throw VX(Error) << "Failed to allocate storage";
+	if(!storage)
+		throw VX(Error) << "Failed to allocate storage";
 
-    // Get a pointer to a model. We control its lifetime. 
-    model = librdf_new_model(w, storage, _model_options.c_str());
-    if(!model)
-	throw VX(Error) << "Failed to allocate model";
+	// Get a pointer to a model. We control its lifetime. 
+	model = librdf_new_model(w, storage, _model_options.c_str());
+	if(!model)
+		throw VX(Error) << "Failed to allocate model";
+
+	updatePrefixes();
 }
 
 // -----------------------------------------------------------------------------
@@ -125,8 +130,8 @@ _Model::copy()
 int
 _Model::size() const
 {
-    // may return <0 if size not discernable
-    return librdf_model_size(model);
+	// may return <0 if size not discernable
+	return librdf_model_size(model);
 }
 
 // -----------------------------------------------------------------------------
@@ -134,9 +139,14 @@ _Model::size() const
 bool
 _Model::sync()
 {
-    int status = librdf_model_sync(model);
+	//
+	// save the prefixes
+	//
+	savePrefixes();
 
-    return (status == 0) ? true : false;
+	int status = librdf_model_sync(model);
+
+	return (status == 0) ? true : false;
 }
 
 // -----------------------------------------------------------------------------
@@ -144,7 +154,7 @@ _Model::sync()
 Stream
 _Model::toStream()
 {
-    return Stream( new _Stream(world, librdf_model_as_stream(model)));
+	return Stream( new _Stream(world, librdf_model_as_stream(model)));
 }
 
 // -----------------------------------------------------------------------------
@@ -349,6 +359,58 @@ _Model::nodeIteratorToVector( librdf_iterator *iter, std::vector< Node > & nodes
 #endif
 		nodes.push_back(n);
 		librdf_iterator_next( iter );
+	}
+}
+
+// -----------------------------------------------------------------------------
+
+void
+_Model::savePrefixes()
+{
+	Prefixes &prefs = world->prefixes();
+	ResourceNode pred( world, URI( prefs.uriForm("rdfxx:hasPrefix")));
+
+	cout << "saving prefixes... " << endl;
+	for ( auto & I : world->prefixes() )
+	{
+		cout << I.first << " --> " << I.second->toString() << endl;
+		ResourceNode subj( world, I.second );
+		LiteralNode  obj( world, Literal(I.first));
+		Statement st( world, subj, pred, obj );
+		if ( ! contains( st ))
+			add( st );	
+	}
+	cout << "done saving prefixes" << endl;
+}
+
+// -----------------------------------------------------------------------------
+
+void
+_Model::updatePrefixes()
+{
+	Prefixes &prefs = world->prefixes();
+	QueryString qs;
+	qs.addPrefix("rdfxx", "https://sourceforge.net/p/ocratato-sassy/rdfxx#");
+	qs.setVariables("DISTINCT ?uri ?prefix");
+	qs.addCondition("?uri rdfxx:hasPrefix ?prefix");
+
+	_Query q( world, qs );
+	QueryResults qr( q.execute( model ));
+
+	// cerr << qr->toString() << endl;
+	
+	Format format = {false, false, "_", false, false, "en", false };
+	for( auto &P : *qr )
+	{
+		Node prefix = P.getBoundValue("prefix");
+		Node uri = P.getBoundValue("uri");
+		if ( prefix->isLiteral() && uri->isResource() )
+		{
+			prefs.insert( prefix->toString(format), uri->toURI() );
+			// cout << "Inserting prefix " << prefix->toString(format) << endl;
+		}
+		else
+			throw VX(Alert) << "Unexpected node types";
 	}
 }
 

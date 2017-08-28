@@ -98,6 +98,11 @@ _Parser::parseIntoModel( Model _model, URI _file, URI _base_uri)
 		world->prefixes().insert( string(prfx), ns );
 	}
 
+	//
+	// update with the prefixes in the model
+	//
+	m->updatePrefixes();
+
 	return rc;
 }
 

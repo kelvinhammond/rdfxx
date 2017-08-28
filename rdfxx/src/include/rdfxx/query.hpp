@@ -94,6 +94,7 @@ class _Query : public Query_
 
     // Execute the query on a model
     QueryResults execute( Model );
+    QueryResults execute( librdf_model* );
 
     // This is used internally for the C API.
     operator librdf_query*();

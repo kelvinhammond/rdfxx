@@ -121,8 +121,7 @@ _URI::_URI( const char *uri_string, URI source_uri, URI base_uri )
 	uri = librdf_new_uri_normalised_to_base( (const unsigned char *)uri_string,
 				src, base );
     	if(!uri)
-		// throw VX(Error) << "Failed to allocate URI";
-		abort();
+		throw VX(Error) << "Failed to allocate URI";
 }
 
 

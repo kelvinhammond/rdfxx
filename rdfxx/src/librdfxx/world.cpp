@@ -81,6 +81,9 @@ Prefixes::Prefixes( World _w)
 
 	URI dc_uri( new _URI( World(world), "http://purl.org/dc/elements/1.1/"));
 	insert( "dc", dc_uri );
+
+	URI rdfxx_uri( new _URI( World(world), "https://sourceforge.net/p/ocratato-sassy/rdfxx#"));
+	insert( "rdfxx", rdfxx_uri );
 }
 
 // ----------------------------------------------------------------------------
@@ -151,6 +154,16 @@ Prefixes::removeBase( URI uri ) const
 void
 Prefixes::insert( const std::string &prefix, URI _uri )
 {
+	
+	//
+	// ns0 is used by librdf for local namespaces within a definition
+	// so they need to be ignored.
+	//
+	if ( prefix == "ns0" )
+	{
+		return;
+	}
+	
 	uriForPrefix[ prefix ] = _uri;
 	prefixForURI[ _uri->toString() ] = prefix;
 }
@@ -197,6 +210,11 @@ Prefixes::uriForm( const std::string &s )
 		return URI(World(world), s.substr(1, s.length()-2));
 	string::size_type p = s.find(':');
 	if ( p == string::npos ) return nullptr;
+	if ( s.length() > p+2 )
+	{
+		if ( s[p+1] == '/' && s[p+2] == '/' )
+			return URI(World(world), s );
+	}
 	URI uri = uriForPrefix[ s.substr(0,p)];
 	if ( uri )
 		return URI( s, URI(World(world), s.substr(0,p+1)), uri );
@@ -220,9 +238,12 @@ Prefixes::prefixForm( URI uri )
 		if (! prefix.empty())
 		{
 			URI src = find( prefix );
-			prefix.append(":");
-			URI res( uri->toString(), src, URI(World(world), prefix));
-			s = res->toString();
+			if ( !( src == uri ) )
+			{
+				prefix.append(":");
+				URI res( uri->toString(), src, URI(World(world), prefix));
+				s = res->toString();
+			}
 		}
 	}
 	return s;

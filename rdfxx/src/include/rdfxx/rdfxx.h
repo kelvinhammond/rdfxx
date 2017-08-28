@@ -330,6 +330,8 @@ public:
 	URI uriForm( const std::string & );
 	std::string prefixForm( URI );
 
+	std::map< std::string, URI >::iterator begin() { return uriForPrefix.begin(); }
+	std::map< std::string, URI >::iterator end() { return uriForPrefix.end(); }
 };
 
 // ---------------------------------------------------------------

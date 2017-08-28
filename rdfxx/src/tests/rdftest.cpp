@@ -541,6 +541,7 @@ IOTestCase::runTest()
 		rc = rc && test( true, "io 2");
 		URI uri(world, string("file://") + fn + "#" );
 		ser->setNamespace( uri, "bross");
+		ser->setNamespace( world->prefixes().find("rdfs"), "rdfs");
 		bool res = ser->toFile( "/tmp/iotest.rdf", m1, uri );
 		rc = rc && test( res, "io 3");
 
@@ -824,6 +825,7 @@ ConstructTestCase::runTest()
 			Node subj, pred, obj;
 			if ( s->nt == graph::Node::Resource )
 			{
+				cout << "+++" << s->value << "===" << endl;
 				subj = ResourceNode( world, prefixes.uriForm(s->value ));
 			}
 			else

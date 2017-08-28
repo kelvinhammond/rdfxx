@@ -116,11 +116,29 @@ _Query::execute( Model _model )
 	}
 	else
 	{
-		if ( ! _model ) throw VX(Code) << "Model is null";
+		throw VX(Code) << "Model is null";
 	}
 	// not reached
 	return nullptr;
 }
+
+// -----------------------------------------------------------------------------
+
+QueryResults
+_Query::execute( librdf_model* _model )
+{
+	if ( _model )
+	{
+		return QueryResults( new _QueryResults(world, *this, _model ));
+	}
+	else
+	{
+		throw VX(Code) << "Model is null";
+	}
+	// not reached
+	return nullptr;
+}
+
 
 // -----------------------------------------------------------------------------
 

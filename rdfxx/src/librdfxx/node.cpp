@@ -734,6 +734,7 @@ _ResourceNode::toString(const Format &format) const
 		URI uri = toURI();
 		if ( format.usePrefixes )
 		{
+			/*
 			if ( prefixes.isBase( uri ))
 			{
 				s = prefixes.removeBase( uri );
@@ -749,6 +750,8 @@ _ResourceNode::toString(const Format &format) const
 					s = res->toString();
 				}
 			}
+			*/
+			s = prefixes.prefixForm( uri );
 		}
 		if ( s.empty())
 		{
