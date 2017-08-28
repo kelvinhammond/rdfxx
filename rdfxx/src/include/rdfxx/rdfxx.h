@@ -35,7 +35,7 @@
 #include <rdfxx/except.h>
 
 // remove once Node no longer required
-#define USE_NODE 1
+#define USE_NODE 0
 
 namespace rdf
 {
@@ -186,7 +186,7 @@ public:
 class BlankNode : public std::shared_ptr< BlankNode_ >
 {
 public:
-	BlankNode( World );
+	BlankNode( World, const std::string &id = "" );
 };
 #endif
 
@@ -313,14 +313,23 @@ private:
 public:
 	Prefixes( World );
 
+	// methods for the base URI which usually corresponds to the 
+	// file.
 	void base( URI uri ) { base_uri = uri; }
+	void base( const std::string & filename );  // appends # to normalised file name
 	URI base() const { return base_uri; }
 	bool isBase( URI ) const;
 	std::string removeBase( URI ) const;
 
+	// methods for accessing the internal maps
 	void insert( const std::string &prefix, URI );
 	URI find( const std::string & );
 	std::string find( URI );
+
+	// methods for converting between the prefix and normal forms
+	URI uriForm( const std::string & );
+	std::string prefixForm( URI );
+
 };
 
 // ---------------------------------------------------------------
@@ -467,7 +476,7 @@ class Node_
 {
 public:
 	virtual ~Node_() {}
-	virtual Node copy() const = 0;
+	// virtual Node copy() const = 0;
 
 	virtual std::string toString() const = 0;
 	virtual std::string toString(const Format &) const = 0;

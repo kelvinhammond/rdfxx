@@ -121,7 +121,8 @@ _URI::_URI( const char *uri_string, URI source_uri, URI base_uri )
 	uri = librdf_new_uri_normalised_to_base( (const unsigned char *)uri_string,
 				src, base );
     	if(!uri)
-		throw VX(Error) << "Failed to allocate URI";
+		// throw VX(Error) << "Failed to allocate URI";
+		abort();
 }
 
 
@@ -156,13 +157,20 @@ _URI::copy() const
 
 // -----------------------------------------------------------------------------
 
+// trim everything after last / or #
 URI
 _URI::trim( World w ) const
 {
 	string s( toString() );
 	string::size_type p = s.find_last_of('#');
 	if ( p == string::npos )
-		return copy();
+	{
+		p = s.find_last_of('/');
+		if ( p == string::npos )
+			return copy();
+		else
+			return URI( w, s.substr(0,p+1));
+	}
 	else
 		return URI( w, s.substr(0,p+1));
 }

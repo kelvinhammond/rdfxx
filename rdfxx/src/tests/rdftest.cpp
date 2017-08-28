@@ -119,11 +119,15 @@ URITestCase::runTest()
 		rc = rc && test( uri5->toString() == "http://purl.org/dc/0.1/title#fred", "uri 8");
 
 		Prefixes &prefixes = world->prefixes();
-		prefixes.insert( "dc", uri );
+		prefixes.insert( "cd", uri );
 
-		rc = rc && test( prefixes.find( uri ) == "dc", "uri 9");
+		rc = rc && test( prefixes.find( uri ) == "cd", "uri 9");
 		cout << "9: \"" << prefixes.find( uri ) << "\"" << endl;
-		rc = rc && test( prefixes.find( "dc" ) == uri, "uri 10");
+		rc = rc && test( prefixes.find( "cd" ) == uri, "uri 10");
+
+		URI uri6( prefixes.uriForm("cd:stuff"));
+		rc = rc && test( uri6->toString() == "http://purl.org/dc/0.1/title#stuff", "uri 11");
+		rc = rc && test( prefixes.prefixForm(uri6) == "cd:stuff", "uri 12");
 
 
 		cout << "---------- end URI tests -------------" << endl;
@@ -135,6 +139,53 @@ URITestCase::runTest()
 
 	return rc;
 }
+
+// ------------------------------------------------------------
+//	PrefixTestCase
+// ------------------------------------------------------------
+
+PrefixTestCase::PrefixTestCase( csr nm)
+	: TestCaseT<PrefixTestCase>(nm)
+{
+	world = Universe::instance().world("test");
+	XINI & xini = XINI::instance();
+	string xpath("/SASSY-CONFIG/Test/librdfxx/TestData");
+	int n = xini.getVals( xpath, rdfFiles );
+	if ( n == 0 )
+		throw cdi::test_exception() << "No RDF test data\n";
+}
+
+// ------------------------------------------------------------
+
+PrefixTestCase::~PrefixTestCase()
+{}
+
+// ------------------------------------------------------------
+
+bool
+PrefixTestCase::runTest()
+{
+	bool rc = true;
+
+	Prefixes &prefixes = world->prefixes();
+	prefixes.base( rdfFiles.front());
+	cout << prefixes.base()->toString() << endl;
+
+	rc = rc && test( prefixes.uriForm( "dc:title" )->toString()
+				== "http://purl.org/dc/elements/1.1/title", "prefix 1");
+	// cout << prefixes.uriForm( "dc:title" )->toString() << endl;
+	
+	rc = rc && test( prefixes.prefixForm( URI( world, "http://purl.org/dc/elements/1.1/title"))
+				== "dc:title", "prefix 2");
+
+	cout << prefixes.prefixForm( URI( world, "http://purl.org/dc/elements/1.1/title")) << endl;
+	rc = rc && test( prefixes.uriForm("xsd:int")->toString()
+				== "http://www.w3.org/2001/XMLSchema#int", "prefix 3" );
+	rc = rc && test( prefixes.prefixForm( URI( world, "http://www.w3.org/2001/XMLSchema#float"))
+				== "xsd:float", "prefix 4");
+	return rc;
+}
+
 
 // ------------------------------------------------------------
 //	NodeTestCase
@@ -160,33 +211,33 @@ NodeTestCase::runTest()
 
 	try {
 		cout << "------------------ nodes --------------" << endl;
-		Node n1(world,URI(world,"http://purl.org/dc/0.1/title"));
+		ResourceNode n1(world,URI(world,"http://purl.org/dc/0.1/title"));
 		rc = rc && test( true, "node 1");
 		rc = rc && test( n1->isResource(), "node 2");
 		rc = rc && test( ! n1->isBlank(), "node 3");
 		rc = rc && test( ! n1->isLiteral(), "node 4");
-		Node n2(world);
+		BlankNode n2(world);
 		rc = rc && test( n2->isBlank(), "node 5");
-		Node n3(world, Literal("fred"));
+		LiteralNode n3(world, Literal("fred"));
 		rc = rc && test( n3->isLiteral(), "node 6");
-		Node n4(world, Literal("<dc:name>TestLog</dc:name>", DataType::XMLLiteral));
+		LiteralNode n4(world, Literal("<dc:name>TestLog</dc:name>", DataType::XMLLiteral));
 		rc = rc && test( n4->isLiteral(), "node 7");
-		Node n5(world, Literal("<dc:name>TestLog</dc:name>", DataType::PlainLiteral, "en"));
+		LiteralNode n5(world, Literal("<dc:name>TestLog</dc:name>", DataType::PlainLiteral, "en"));
 		rc = rc && test( n5->isLiteral(), "node 8");
-		Node n6(world, Literal("fred", DataType::PlainLiteral, "en"));
+		LiteralNode n6(world, Literal("fred", DataType::PlainLiteral, "en"));
 		rc = rc && test( n6->isLiteral(), "node 9");
-		Node n7(world, Literal("http://purl.org/dc/0.1/title"));
+		LiteralNode n7(world, Literal("http://purl.org/dc/0.1/title"));
 		rc = rc && test( !n7->isResource(), "node 10");
 		rc = rc && test( n7->isLiteral(), "node 12");
 
 		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
-		Node n8(world, uri );
+		ResourceNode n8(world, uri );
 		rc = rc && test( n8->isResource(), "node 11");
 
-		Node n9 = n8->copy();
-		rc = rc && test( n9->isResource(), "node 13");
+		// Node n9 = n8->copy();
+		// rc = rc && test( n9->isResource(), "node 13");
 
-		URI uri2 = n9->toURI();
+		URI uri2 = n8->toURI();
 		rc = rc && test( uri == uri2, "node 14");
 		rc = rc && test( n3->toString() == "\"fred\"@en", "node 15");
 		cout << "n3 = \"" << n3->toString() << "\"" << endl;
@@ -211,7 +262,7 @@ NodeTestCase::runTest()
 		URI uri3(world, s3);
 		world->prefixes().insert( "ofw", uri3 );
 		URI uri4(world, s3 + "stuff");
-		Node nf1(world, uri4);
+		ResourceNode nf1(world, uri4);
 		format.usePrefixes = true;
 		rc = rc && test( nf1->toString(format) == "ofw:stuff", "node 18");
 		if ( ! rc ) cout << "\"" << nf1->toString(format) << "\"" << endl;
@@ -267,13 +318,13 @@ StmntTestCase::runTest()
 	bool rc = true;
 
 	try {
-		Node n1(world);
+		BlankNode n1(world);
 		Statement s1(world, n1, n1, n1 );
 		rc = rc && test( true, "stmnt 1");
 		rc = rc && test( ! s1->isComplete(), "stmnt 2");
-		Node n2(world, Literal("fred"));
-		Node n3(world, Literal("isA"));
-		Node n4(world, Literal("moron"));
+		LiteralNode n2(world, Literal("fred"));
+		Node n3 = LiteralNode(world, Literal("isA"));
+		LiteralNode n4(world, Literal("moron"));
 		s1->subject(n2);
 		rc = rc && test( ! s1->isComplete(), "stmnt 3");
 		NodeRef nr2 = s1->subject();
@@ -290,10 +341,10 @@ StmntTestCase::runTest()
 		rc = rc && test( ! s1->isComplete(), "stmnt 7");
 
 		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
-		s1->subject(Node(world, uri));
+		s1->subject(ResourceNode(world, uri));
 		rc = rc && test( Node(s1->subject())->toURI() == uri, "stmnt 8");
 
-		n3 = Node(world,URI(world,"http://purl.org/dc/0.1/title"));
+		n3 = ResourceNode(world,URI(world,"http://purl.org/dc/0.1/title"));
 		s1->predicate(n3);
 		rc = rc && test( s1->isComplete(), "stmnt 9");
 		
@@ -350,10 +401,10 @@ ModelTestCase::runTest()
 		rc = rc && test( m1->size() == 0, "model 1");
 		// cout << "model size is " << m1->size() << endl;
 		URI uri(world,"http://organise.org/ofw/0.4/categories/documents");
-		Node n1(world, uri );
-		Node n2(world, URI(world, "http://purl.org/dc/0.1/title"));
-		Node n3(world, Literal("some literal value"));
-		Node n4(world, Literal("a different literal value") );
+		ResourceNode n1(world, uri );
+		ResourceNode n2(world, URI(world, "http://purl.org/dc/0.1/title"));
+		LiteralNode n3(world, Literal("some literal value"));
+		LiteralNode n4(world, Literal("a different literal value") );
 
 		Statement s1(world, n1, n2, n3 );
 		m1->add( n1, n2, n3 );
@@ -691,6 +742,165 @@ LiteralTestCase::runTest()
 
 
 // ------------------------------------------------------------
+//	ConstructTestCase
+// ------------------------------------------------------------
+
+ConstructTestCase::ConstructTestCase(csr nm)
+	: TestCaseT< ConstructTestCase >(nm)
+{
+	world = Universe::instance().world("test");
+	std::vector< std::string > rdfFiles;
+	XINI & xini = XINI::instance();
+	string xpath("/SASSY-CONFIG/Test/librdfxx/TestData");
+	int n = xini.getVals( xpath, rdfFiles );
+	if ( n == 0 )
+		throw cdi::test_exception() << "No RDF test data\n";
+
+	testFile = rdfFiles.front();
+	testFile = testFile.dir();
+	testFile.append("personexample.ttl");
+
+	world->prefixes().base( URI( string(testFile) + "#", world));
+	world->prefixes().insert("w3c", URI(world,"http://www.w3.org/2000/03/example/classes#"));
+}
+
+// ------------------------------------------------------------
+
+ConstructTestCase::~ConstructTestCase()
+{}
+
+// ------------------------------------------------------------
+
+bool
+ConstructTestCase::runTest()
+{
+	bool rc = true;
+	Model model(world, "memory" );
+	URI uri( string(testFile), world );
+	Parser parser( world, "guess" );
+	parser->parseIntoModel( model, uri, uri );
+
+	cout << "------------------ construct graph --------------" << endl;
+	graph::Graph g;
+	Format format = { true, true, "blank", false, false, "en", false };
+	Stream strm = model->toStream();
+	while ( ! strm->end() )
+	{
+		Statement st( strm->current());
+		// cout << "stmnt: >>> " << st->toString(format) << " <<< " << endl;
+		Node subjn( st->subject());
+		Node predn( st->predicate());
+		Node objn( st->object());
+
+		graph::Node gsn;
+		if ( subjn->isBlank() ) gsn.nt = graph::Node::Blank;
+		else if ( subjn->isResource()) gsn.nt = graph::Node::Resource;
+		gsn.value = subjn->toString(format);
+
+		string pv = predn->toString(format);
+
+		graph::Node gon;
+		if ( objn->isBlank() ) gon.nt = graph::Node::Blank;
+		else if ( objn->isResource()) gon.nt = graph::Node::Resource;
+		else gon.nt = graph::Node::Literal;
+		gon.value = objn->toString(format);
+
+		g.insertEdge( gsn, pv, gon );
+		cout << gsn.value << ", " << pv << ", " << gon.value << endl;
+
+		strm->next();
+	}
+	cout << "------------------ construct new model --------------" << endl;
+
+	try {
+		Prefixes &prefixes = world->prefixes();
+		Model outModel(world, "file", "/tmp/blank-test.rdf");
+		for ( auto & edge : g )
+		{
+			graph::NodePtr s( edge->fromNode );
+			graph::NodePtr o( edge->toNode );
+			string p( edge->value );
+	
+			Node subj, pred, obj;
+			if ( s->nt == graph::Node::Resource )
+			{
+				subj = ResourceNode( world, prefixes.uriForm(s->value ));
+			}
+			else
+			{
+				// must be blank
+				subj = BlankNode( world, s->value );
+			}
+			pred = ResourceNode( world, prefixes.uriForm(p));
+			if ( o->nt == graph::Node::Resource )
+			{
+				cout << "+++" << o->value << "===" << endl;
+				obj = ResourceNode( world, prefixes.uriForm(o->value ));
+			}
+			else if ( o->nt == graph::Node::Literal )
+			{
+				obj = LiteralNode( world, Literal( o->value ));
+			}
+			else
+			{
+				obj = BlankNode( world, o->value );
+			}
+			outModel->add( subj, pred, obj );
+		}
+		bool res = outModel->sync();
+		if ( ! res )
+			throw VX(rdf::Error) << "Failed to write model";
+	}
+	catch( vx & xx )
+	{
+		cerr << "Exception: " << xx.what() << endl;
+		rc = test( false, xx.what() );
+	}
+	return rc;
+}
+
+// ------------------------------------------------------------
+
+void
+graph::Graph::insertEdge( const graph::Node &from, csr val, const graph::Node & to )
+{
+	static int count = 1;
+
+	Edge edge;
+	edge.value = val;
+
+	std::map< std::string, std::shared_ptr< graph::Node > >::const_iterator x;
+
+	Node n = from;
+	// if blank we replace the original id with our own
+	if ( n.nt == Node::Blank )
+	{
+		n.value = string("_blank:n") + std::to_string(count++);
+	}
+	// try to find an existing Node
+	x = nodes.find( from.value );
+	if ( x == nodes.end())
+	{
+		nodes[ from.value ] = shared_ptr<Node>( new Node(n));
+	}
+	edge.fromNode = nodes[ from.value ];
+
+	n = to;
+	// if blank we replace the original id with our own
+	if ( n.nt == Node::Blank )
+	{
+		n.value = string("_blank:n") + std::to_string(count++);
+	}
+	// try to find an existing Node
+	x = nodes.find( to.value );
+	if ( x == nodes.end())
+	{
+		nodes[ to.value ] = shared_ptr<Node>( new Node(n));
+	}
+	edge.toNode = nodes[ to.value ];
+
+	edges.push_back( shared_ptr<Edge>( new Edge( edge )));
+}
 
 
 // ------------------------------------------------------------
@@ -732,18 +942,19 @@ int main( int argc, char * argv[])
 		cout << "Using config: " << xini.getConfigFilename() << endl;
 
 		Tester::instance().configure("librdfxx");
-
 		// ExampleTestCase::install("Tester test", "Tester scenario");
-		    URITestCase::install("A URI test",       "RDF scenario");
-		   NodeTestCase::install("B Node test",      "RDF scenario");
-		  StmntTestCase::install("C Statement test", "RDF scenario");
-		  ModelTestCase::install("D Model test",     "RDF scenario");
-		  StoreTestCase::install("E Store test",     "RDF scenario");
-		     IOTestCase::install("F IO test",        "RDF scenario");
-		  QueryTestCase::install("G Query test",     "RDF scenario");
-		LiteralTestCase::install("H Literal test", "RDF scenario");
-		  /*
-		*/
+		      URITestCase::install("A URI test",       "RDF scenario");
+		     NodeTestCase::install("B Node test",      "RDF scenario");
+		    StmntTestCase::install("C Statement test", "RDF scenario");
+		    ModelTestCase::install("D Model test",     "RDF scenario");
+		    StoreTestCase::install("E Store test",     "RDF scenario");
+		       IOTestCase::install("F IO test",        "RDF scenario");
+		    QueryTestCase::install("G Query test",     "RDF scenario");
+		  LiteralTestCase::install("H Literal test",   "RDF scenario");
+		ConstructTestCase::install("I construct test", "RDF scenario");
+		/*
+		   */
+		   PrefixTestCase::install("J Prefix test",    "RDF scenario");
 
 		Tester::instance().runTests();
 		rc = Tester::instance().summary();

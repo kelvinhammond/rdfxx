@@ -41,6 +41,21 @@ public:
 
 // -------------------------------------------------------------------
 
+class PrefixTestCase : public SASSY::cdi::TestCaseT<PrefixTestCase>
+{
+protected:
+	rdf::World world;
+	std::vector< std::string > rdfFiles;
+	bool runTest();
+
+public:
+	PrefixTestCase(csr nm);
+	~PrefixTestCase();
+};
+
+
+// -------------------------------------------------------------------
+
 class NodeTestCase : public SASSY::cdi::TestCaseT<NodeTestCase>
 {
 protected:
@@ -135,6 +150,55 @@ public:
 	LiteralTestCase(csr nm);
 	~LiteralTestCase();
 };
+
+// -------------------------------------------------------------------
+
+namespace graph
+{
+
+struct Node
+{
+	enum NodeType { Resource, Literal, Blank };
+	
+	NodeType nt;
+	std::string value;
+};
+using NodePtr = std::shared_ptr< Node >;
+using NodeWPtr = std::weak_ptr< Node >;
+
+struct Edge
+{
+	NodeWPtr fromNode, toNode;
+	std::string value;
+};
+using EdgePtr = std::shared_ptr< Edge >;
+
+class Graph
+{
+private:
+	std::map< std::string, NodePtr > nodes;
+	std::vector< EdgePtr > edges;
+public:
+	Graph(){}
+
+	void insertEdge( const Node &from, csr val, const Node & to ); 
+	std::vector< EdgePtr >::iterator begin() { return edges.begin(); }
+	std::vector< EdgePtr >::iterator end() { return edges.end(); }
+};
+
+}
+
+class ConstructTestCase : public SASSY::cdi::TestCaseT< ConstructTestCase >
+{
+protected:
+	rdf::World world;
+	SASSY::Path testFile;
+	bool runTest();
+public:
+	ConstructTestCase(csr nm);
+	~ConstructTestCase();
+};
+
 
 // -------------------------------------------------------------------
 

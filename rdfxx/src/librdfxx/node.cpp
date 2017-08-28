@@ -327,9 +327,10 @@ LiteralNode::LiteralNode( World w, const Literal & L)
 //	BlankNode
 // -----------------------------------------------------------------------------
 
-BlankNode::BlankNode( World w )
-	: std::shared_ptr< BlankNode_ >( new _BlankNode( w ))
+BlankNode::BlankNode( World w, const std::string &id )
+	: std::shared_ptr< BlankNode_ >( new _BlankNode( w, id ))
 {}
+
 #endif	// USE_NODE
 
 #if USE_NODE
@@ -478,13 +479,13 @@ _Node::~_Node()
 }
 
 // -----------------------------------------------------------------------------
-
+/*
 Node
 _Node::copy() const
 {
 	return Node( new _Node( *this ));
 }
-
+*/
 // -----------------------------------------------------------------------------
 
 std::string
@@ -526,21 +527,7 @@ _Node::toString( const Format & format ) const
 		URI uri = toURI();
 		if ( format.usePrefixes )
 		{
-			if ( prefixes.isBase( uri ))
-			{
-				s = prefixes.removeBase( uri );
-			}
-			else
-			{
-				string prefix = prefixes.find( uri );
-				if (! prefix.empty())
-				{
-					URI src = prefixes.find( prefix );
-					prefix.append(":");
-					URI res( uri->toString(), src, URI(world, prefix));
-					s = res->toString();
-				}
-			}
+			s = prefixes.prefixForm( uri );
 		}
 		if ( s.empty())
 		{
@@ -633,13 +620,13 @@ _Node::operator librdf_node*() const
 // -----------------------------------------------------------------------------
 //	_NodeBase
 // -----------------------------------------------------------------------------
-
+/*
 Node
 _NodeBase::copy() const
 {
-	throw VX(Code) << "not implemented";
+	return Node( new _NodeBase( *this ));
 }
-
+*/
 // -----------------------------------------------------------------------------
 
 // static
@@ -656,6 +643,13 @@ _NodeBase::derefNode( Node a )
 		c = static_cast< _BlankNode * >( a.get());
 	if ( c ) t = *c;
 	return t;
+}
+
+// -----------------------------------------------------------------------------
+
+_NodeBase::operator librdf_node*() const
+{
+    return node;
 }
 
 // -----------------------------------------------------------------------------
@@ -884,10 +878,17 @@ _LiteralNode::toLiteral() const
 //	_BlankNode
 // -----------------------------------------------------------------------------
 
-_BlankNode::_BlankNode( World _w )
+_BlankNode::_BlankNode( World _w, const std::string &id )
 	: _NodeBase( _w, 0, true )
 {
-	throw VX(Code) << "not implemented";
+    	// _World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
+
+    	// Create a new node. User controls lifetime.
+	// TODO - specify blank identifier
+    	node = librdf_new_node_from_blank_identifier(w, (const unsigned char*)id.c_str() );
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
 }
 
 // -----------------------------------------------------------------------------

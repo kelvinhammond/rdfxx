@@ -79,9 +79,36 @@ Prefixes::Prefixes( World _w)
 	URI xsd_uri( new _URI( World(world), "http://www.w3.org/2001/XMLSchema#"));
 	insert( "xsd", xsd_uri );
 
-	// this is a bit wrong - TODO - namespaces that don't have fragment (#)
-	URI dc_uri( new _URI( World(world), "http://purl.org/dc/elements/1.1/#"));
-	insert( "dc", xsd_uri );
+	URI dc_uri( new _URI( World(world), "http://purl.org/dc/elements/1.1/"));
+	insert( "dc", dc_uri );
+}
+
+// ----------------------------------------------------------------------------
+
+void
+Prefixes::base( const std::string & uri )
+{
+	char *abs_path = realpath( uri.c_str(), NULL );
+	if ( abs_path )
+	{
+		string absPath(abs_path);
+		free(abs_path);
+		string::size_type p = absPath.find('#');
+		if ( p == string::npos )
+		{
+			absPath += "#";
+		}
+		else
+		{
+			absPath = absPath.substr(0,p+1);
+		}
+		base( URI( absPath, World(world)));
+	}
+	else
+	{
+		throw VX(Error) << "Failed to get real path for " << uri 
+			<< ": " << strerror(errno);
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -162,7 +189,44 @@ Prefixes::find( const std::string &prefix )
 
 // ----------------------------------------------------------------------------
 
+URI
+Prefixes::uriForm( const std::string &s )
+{
+	if ( s.empty() ) return nullptr;
+	if ( s[0] == '<' && s[s.length()-1] == '>' )
+		return URI(World(world), s.substr(1, s.length()-2));
+	string::size_type p = s.find(':');
+	if ( p == string::npos ) return nullptr;
+	URI uri = uriForPrefix[ s.substr(0,p)];
+	if ( uri )
+		return URI( s, URI(World(world), s.substr(0,p+1)), uri );
+	else
+		return nullptr;
+}
+
 // ----------------------------------------------------------------------------
+
+std::string
+Prefixes::prefixForm( URI uri )
+{
+	string s( uri->toString());
+	if ( isBase( uri ))
+	{
+		s = removeBase( uri );
+	}
+	else
+	{
+		string prefix = find( uri );
+		if (! prefix.empty())
+		{
+			URI src = find( prefix );
+			prefix.append(":");
+			URI res( uri->toString(), src, URI(World(world), prefix));
+			s = res->toString();
+		}
+	}
+	return s;
+}
 
 // ----------------------------------------------------------------------------
 //	_World

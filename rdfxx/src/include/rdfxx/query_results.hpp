@@ -42,7 +42,6 @@ namespace rdf
 
 class _Query;
 class _Model;
-class _Node;
 class _QueryResults;
 
 class _QueryResult : public QueryResult_

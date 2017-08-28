@@ -127,7 +127,7 @@ class _Node : public Node_
      */
     ~_Node();
 
-    Node copy() const;
+    // Node copy() const;
 
     //! Get the node as string.
     /*! 
@@ -159,7 +159,7 @@ protected:
 	_NodeBase( World w, librdf_node *n, bool f)
 		: world(w), node(n), free(f) {}
 public:
-	Node copy() const;
+	// Node copy() const;
 	std::string toString() const;
 
 	// This is used internally for the C API.
@@ -172,6 +172,7 @@ public:
 	static Node make( World, librdf_node*, bool freeOnDelete );
 };
 
+using _Node = _NodeBase;
 
 // ------------------------------------------------------------------------
 
@@ -181,7 +182,7 @@ public:
 	_ResourceNode( World, URI );
 	_ResourceNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
-	Node copy() const { return _NodeBase::copy(); }
+	// Node copy() const { return _NodeBase::copy(); }
 
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;
@@ -203,7 +204,7 @@ public:
 	_LiteralNode( World, const Literal & );
 	_LiteralNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
-	Node copy() const { return _NodeBase::copy(); }
+	// Node copy() const { return _NodeBase::copy(); }
 	
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;
@@ -222,10 +223,10 @@ public:
 class _BlankNode : public BlankNode_, public _NodeBase
 {
 public:
-	_BlankNode( World );
+	_BlankNode( World, const std::string &id = "" );
 	_BlankNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
-	Node copy() const { return _NodeBase::copy(); }
+	// Node copy() const { return _NodeBase::copy(); }
 
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;

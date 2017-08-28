@@ -150,9 +150,15 @@ int main( int argc, char *argv[] )
 	if ( argc < 2 )
 	{
 		cerr << "expected RDF file name" << endl;
-		return 1;
+		return EXIT_FAILURE;
 	} 
-	Path path(argv[1]);
+	char *p = realpath(argv[1],NULL);
+	if ( p == NULL )
+	{
+		cerr << "cannot find " << argv[1] << ": " << strerror(errno) << endl;
+		return EXIT_FAILURE;
+	}
+	Path path(p);
 
 	World world = Universe::instance().world("rdf2dot");
 	world->prefixes().base( URI( string(path) + "#", world));
