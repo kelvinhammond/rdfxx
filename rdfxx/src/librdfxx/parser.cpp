@@ -55,7 +55,6 @@ Parser::Parser( World w, const std::string & name, URI syntax_uri )
 _Parser::_Parser( World _w, const std::string& _name, const std::string& _syntax_mime)
 	 : world(_w), parser(0)
 {
-    // _World& world = _World::instance();
     	librdf_world* world = DEREF( World, librdf_world, _w);
 
     parser = librdf_new_parser(world, _name.c_str(), _syntax_mime.c_str(), 0);
@@ -68,7 +67,6 @@ _Parser::_Parser( World _w, const std::string& _name, const std::string& _syntax
 _Parser::_Parser( World _w, const std::string& _name, URI _syntax_uri)
 	 : world(_w), parser(0)
 {
-    // _World& world = _World::instance();
     	librdf_world* world = DEREF( World, librdf_world, _w);
     librdf_uri *uri = DEREF( URI, librdf_uri, _syntax_uri );
 

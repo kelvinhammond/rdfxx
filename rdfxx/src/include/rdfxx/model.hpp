@@ -32,7 +32,6 @@
 
 #include <rdfxx/rdfxx.h>
 #include <rdfxx/stream.hpp>
-// #include <rdfxx/storage.hpp>
 #include <rdfxx/statement.hpp>
 
 namespace rdf
@@ -51,7 +50,6 @@ class _Model : public Model_
     librdf_storage *storage;	// owned
 
 	void nodeIteratorToVector( librdf_iterator *, std::vector< Node > & );
-	// void updatePrefixes();	// update Prefixes from statements in the model
 	void savePrefixes();	// ensure all prefixes are recorded as statements in the model
  
     // -------------------------------------------------------------------------
@@ -82,8 +80,6 @@ class _Model : public Model_
 
     // Disallow assignment operator
     _Model & operator = (const _Model &) = delete;
-
-    // Model copy();
 
     //! Get the number of statements int the model. 
     /*! 

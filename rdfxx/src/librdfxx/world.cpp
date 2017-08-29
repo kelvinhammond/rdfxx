@@ -173,19 +173,10 @@ Prefixes::insert( const std::string &prefix, URI _uri )
 std::string
 Prefixes::find( URI _uri )
 {
-	// cout << "Prefixes::find" << endl;
 	URI u = _uri->trim( World(world));
-	// for ( auto &x : prefixForURI )
-	// {
-		// cout << x.first << " --> " << x.second;
-		// if ( u->toString() == x.first ) cout << " found";
-		// cout << endl;
-	// }
-	// cout << "end Prefixes::find \"" << u->toString() << "\"" << endl;
 	auto I = prefixForURI.find( u->toString() );
 	if ( I == prefixForURI.end() )
 	{
-		// cout << "Failed to find \"" << u->toString() << "\"" << endl;
 		return "";
 	}
 	else
@@ -276,20 +267,6 @@ _World::_World( const std::string &nm)
 }
 
 // ----------------------------------------------------------------------------
-/*
-_World &
-//_World::instance()
-{
-	//
-	// Thread safe instance creation.
-	// C++ guarantees static initialisation only done once.
-	//
-	static _World theWorld;
-
-	return theWorld;
-}
-*/
-// ----------------------------------------------------------------------------
 
 void 
 _World::registerErrorClient( ErrorClient *client, bool warnings, bool errors )
@@ -367,7 +344,6 @@ _World::errorHandler( void *user_data, const char *message, va_list arguments)
 	{
 		msg.assign( buffer );
 	}
-	// cout << "Error handler: " << msg << endl;
 	
 	// pass it the handler
 	ErrorHandler *eh = static_cast< ErrorHandler *>( user_data );

@@ -86,7 +86,6 @@ _Statement::_Statement(World _w)
 _Statement::_Statement(World _w, Node _subject, Node _predicate, Node _object)
 	 : world(_w), statement(0), free(true)
 {
-    	// _World & world = _World::instance();
 	librdf_world* w = DEREF( World, librdf_world, _w );
 #if USE_NODE
 	librdf_node *s = DEREF( Node, librdf_node, Node(_subject) );	// fixed
@@ -307,8 +306,6 @@ _Statement::clear()
 std::string
 _Statement::toString() const
 {
-	// TODO - add a serialiser to handle namespace prefixes
-	
 	string s;
 	char *str = NULL;
 	size_t len = 2;

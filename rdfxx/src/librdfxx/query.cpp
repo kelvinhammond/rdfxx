@@ -54,7 +54,6 @@ Query::Query( World w, const std::string & query, URI base_uri, const std::strin
 _Query::_Query(World _w, const string & _query_string, const std::string& _lang)
 	 : world(_w), query(0)
 {
-    // _World& world = _World::instance();
     librdf_world* w = DEREF( World, librdf_world, _w );
     
     query = librdf_new_query(w, _lang.c_str(), 0, (unsigned char*) _query_string.c_str(), NULL);
@@ -68,7 +67,6 @@ _Query::_Query(World _w, const string & _query_string, URI _base_uri, const std:
 	 : world(_w), query(0)
 {
 	librdf_uri *bu = DEREF( URI, librdf_uri, _base_uri );
-    // _World& world = _World::instance();
     librdf_world* w = DEREF( World, librdf_world, _w );
 
     query = librdf_new_query(w, _lang.c_str(), 0, (unsigned char*) _query_string.c_str(), bu );

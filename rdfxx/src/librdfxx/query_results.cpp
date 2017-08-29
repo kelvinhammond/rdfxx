@@ -120,7 +120,6 @@ _QueryResult::count() const
 		throw VX(Code) << "query failed or results exhausted";
 	}
     }
-    // cout << "Number bound = " << numberBound << endl;
     return numberBound;
 }
 
@@ -162,7 +161,6 @@ _QueryResult::getBoundValue(const std::string & _name ) const
     			query_results, _name.c_str());
     if ( ! n )
     {
-    	// cout << toString() << endl;
     	throw VX(Error) << "\"" << _name << "\" is not bound.";
     }
 
@@ -203,15 +201,12 @@ _QueryResult::getBoundName(int _offset) const
 void
 _QueryResult::reset()
 {
-	// cout << "_QueryResult::reset() ";
 	numberBound = -1;
     	int status = librdf_query_results_finished(query_results);
 	if ( status )
 	{
-		// cout << "query finished";
 		query_results = nullptr;
 	}
-	// cout << endl;
 }
 
 // -----------------------------------------------------------------------------

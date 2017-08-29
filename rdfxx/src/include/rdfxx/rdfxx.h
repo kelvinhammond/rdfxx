@@ -62,7 +62,6 @@ class Query_;
 class QueryResults_;
 class Serializer_;
 class Statement_;
-// class Storage_;
 class Stream_;
 class URI_;
 
@@ -130,23 +129,6 @@ public:
 
 };
 
-// ---------------------------------------------------------------
-/*
-class Storage : public std::shared_ptr< Storage_ >
-{
-public:
-	// create an empty shared pointer
-	Storage() : std::shared_ptr< Storage_ >( nullptr ) {}
-
-	// storage_name - name of storage factory
-	// 		"file", "memory", "hashes", "sqlite"
-	// name - an identifier, eg filename or database name
-	// options - whatever needed for initialisation
-	Storage( const std::string & storage_name,
-		  const std::string & name = "",
-		  const std::string & options = "" );
-};
-*/
 // ---------------------------------------------------------------
 
 class Model : public std::shared_ptr< Model_ >
@@ -471,9 +453,6 @@ class Model_
 public:
 	virtual ~Model_(){}
 
-	// create an independent copy of the model
-	// virtual Model copy() = 0;
-
 	// Get number of statements if possible. May return <0 if not known.
 	virtual int size() const = 0;
 	virtual bool sync() = 0;
@@ -633,6 +612,7 @@ private:
 public:
 	QueryString(){}
 
+	// TODO - use Prefixes to set prefixes for the query
 	void addPrefix( const std::string & id, const std::string & uri);
 	void setVariables( const std::string & variables);
 	void addCondition( const std::string & condition);
@@ -680,38 +660,6 @@ public:
 
 bool operator == ( Statement, Statement );
 // TODO operator << ( ostream &, Node )
-
-// ---------------------------------------------------------------
-
-/*
-class Storage_
-{
-public:
-	virtual ~Storage_() {}
-
-	// create association with a model
-	// has the effect of moving the model to this store
-	// This seems ineffective  - I think its for internal use
-	// when a model is constructed.
-	//
-	virtual bool open( Model & ) = 0;
-	virtual bool close() = 0;
-
-	//
-	// TODO - why do we need these methods since the Model
-	// should be used to perform these actions ?
-	//
-	virtual int size() = 0;  // <0 if cannot be determined
-
-	// Add statements from a stream 
-	// (does not include duplicates of existing statements)
-	virtual bool add( Stream ) = 0;
-	virtual bool add( Statement ) = 0;
-	virtual bool remove( Statement ) = 0;
-	virtual bool update( Statement old, Statement _new ) = 0;
-	virtual bool contains( Statement ) = 0;
-};
-*/
 
 // ---------------------------------------------------------------
 

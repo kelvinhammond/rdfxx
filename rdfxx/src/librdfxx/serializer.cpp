@@ -70,7 +70,6 @@ _Serializer::_Serializer( World _w, const std::string& _name, const std::string&
 	throw VX(Error) << "Factory name parameter was blank";
     }
 
-    // _World& world = _World::instance();
     librdf_world *world = DEREF( World, librdf_world, _w );
 
     serializer = librdf_new_serializer(world, _name.c_str(), _syntax_mime.c_str(), 0);
@@ -92,7 +91,6 @@ _Serializer::_Serializer( World _w, const std::string& _name, URI _syntax_uri)
     }
 
     librdf_uri * su = DEREF( URI, librdf_uri, _syntax_uri );
-    // _World& world = _World::instance();
     librdf_world *world = DEREF( World, librdf_world, _w );
 
     serializer = librdf_new_serializer(world, _name.c_str(), 0, su );

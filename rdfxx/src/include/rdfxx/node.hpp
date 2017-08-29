@@ -56,13 +56,6 @@ class _Node : public Node_
     //
     bool free;
 
-
-    // Hold the dynamically allocated node string, returned by the
-    // librdf_node_to_string() function. Used to free the memory 
-    // when the object is destructed.
-    // BR - replace with a string - may not even be required
-    // const char* nstring;
-
     // ------------------------------------------------------------------------
     public:
     //! RDF C++ Node constructor.
@@ -186,8 +179,6 @@ public:
 
 	_ResourceNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
-	// Node copy() const { return _NodeBase::copy(); }
-
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;
 	virtual URI toURI() const;
@@ -208,8 +199,6 @@ public:
 	_LiteralNode( World, const Literal & );
 	_LiteralNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
-	// Node copy() const { return _NodeBase::copy(); }
-	
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;
 
@@ -229,8 +218,6 @@ class _BlankNode : public BlankNode_, public _NodeBase
 public:
 	_BlankNode( World, const std::string &id = "" );
 	_BlankNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
-
-	// Node copy() const { return _NodeBase::copy(); }
 
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;

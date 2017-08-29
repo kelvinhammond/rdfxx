@@ -72,14 +72,6 @@ std::map< Concept, librdf_concepts_index > _URI::concepts =
 
 // -----------------------------------------------------------------------------
 
-/*
-URI::URI()
-	: std::shared_ptr< URI_ >( new _URI )
-{}
-*/
-
-// -----------------------------------------------------------------------------
-
 URI::URI(URI_* _uri)
 	: std::shared_ptr< URI_ >( _uri )
 {}
@@ -116,14 +108,6 @@ URI::URI( URI base_uri, const std::string &uri_string )
 
 // -----------------------------------------------------------------------------
 //	_URI
-// -----------------------------------------------------------------------------
-
-/*
-_URI::_URI()
-	: uri(0)
-{}
-*/
-
 // -----------------------------------------------------------------------------
 
 _URI::_URI(World w, const char* _uri_string)
@@ -232,13 +216,10 @@ _URI::set_string(World _w, const char* _uri_string)
 {
     if(uri)
     {
-        // this->~URI();
 	librdf_free_uri(uri);
 	uri = 0;
     }
     
-    // _World & world = _World::instance();
-
     librdf_world* w = DEREF( World, librdf_world, _w);
 
     uri = librdf_new_uri(w, (const unsigned char*) _uri_string);

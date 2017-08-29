@@ -66,7 +66,6 @@ Stream::Stream( Stream_ * _stream )
 _Stream::_Stream( World _w )
 	 : world(_w), stream(0), currStatement(nullptr)
 {
-    // _World & world = _World::instance();
     librdf_world*world = DEREF( World, librdf_world, _w );
 
     stream = librdf_new_empty_stream(world);

@@ -322,22 +322,6 @@ Node::Node( World w, const Literal &L )
 
 // -----------------------------------------------------------------------------
 
-/*
-Node::Node( World w, const std::string & uri )
-	: std::shared_ptr< Node_ >( new _Node(w, uri) )
-{}
-*/
-
-// -----------------------------------------------------------------------------
-/*
-Node::Node(World w, const std::string & literal, bool _is_wf_xml,
-                        const std::string & xml_language )
-	: std::shared_ptr< Node_ >( new _Node( w, literal.c_str(), _is_wf_xml, 
-			xml_language.c_str() ))
-{}
-*/
-// -----------------------------------------------------------------------------
-
 Node::Node( NodeRef _ref )
 	: std::shared_ptr< Node_ >( _ref )
 {}
@@ -522,14 +506,6 @@ _Node::~_Node()
 }
 
 // -----------------------------------------------------------------------------
-/*
-Node
-_Node::copy() const
-{
-	return Node( new _Node( *this ));
-}
-*/
-// -----------------------------------------------------------------------------
 
 std::string
 _Node::toString() const
@@ -663,14 +639,6 @@ _Node::operator librdf_node*() const
 // -----------------------------------------------------------------------------
 //	_NodeBase
 // -----------------------------------------------------------------------------
-/*
-Node
-_NodeBase::copy() const
-{
-	return Node( new _NodeBase( *this ));
-}
-*/
-// -----------------------------------------------------------------------------
 
 // static
 librdf_node *
@@ -755,7 +723,6 @@ _NodeBase::toString() const
 _ResourceNode::_ResourceNode( World _w, URI _uri )
 	: _NodeBase( _w, 0, true )
 {
-    	// _World& world = _World::instance();
 	librdf_world *w = DEREF( World, librdf_world, _w );
     	librdf_uri *uri = DEREF( URI, librdf_uri, _uri );
 
@@ -770,7 +737,6 @@ _ResourceNode::_ResourceNode( World _w, URI _uri )
 _ResourceNode::_ResourceNode( World _w, Concept concept )
 	: _NodeBase( _w, 0, true )
 {
-    	// _World& world = _World::instance();
 	librdf_world *w = DEREF( World, librdf_world, _w );
 
     	// Create a new node. User controls lifetime.
@@ -792,23 +758,6 @@ _ResourceNode::toString(const Format &format) const
 		URI uri = toURI();
 		if ( format.usePrefixes )
 		{
-			/*
-			if ( prefixes.isBase( uri ))
-			{
-				s = prefixes.removeBase( uri );
-			}
-			else
-			{
-				string prefix = prefixes.find( uri );
-				if (! prefix.empty())
-				{
-					URI src = prefixes.find( prefix );
-					prefix.append(":");
-					URI res( uri->toString(), src, URI(world, prefix));
-					s = res->toString();
-				}
-			}
-			*/
 			s = prefixes.prefixForm( uri );
 		}
 		if ( s.empty())
@@ -942,11 +891,9 @@ _LiteralNode::toLiteral() const
 _BlankNode::_BlankNode( World _w, const std::string &id )
 	: _NodeBase( _w, 0, true )
 {
-    	// _World& world = _World::instance();
 	librdf_world *w = DEREF( World, librdf_world, _w );
 
     	// Create a new node. User controls lifetime.
-	// TODO - specify blank identifier
     	node = librdf_new_node_from_blank_identifier(w, (const unsigned char*)id.c_str() );
     	if(!node)
 		throw VX(Error) << "Failed to allocate node";

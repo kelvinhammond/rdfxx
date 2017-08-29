@@ -58,9 +58,9 @@ public:
 // ---------------------------------------------------------------
 
 //! RDF C++ World.
-/*!
- *  Singleton class, internally used for librdf statements.
- */
+//
+// TODO - limit a world to a single process thread
+//
 class _World : public World_, public std::enable_shared_from_this< _World >
 {
 	friend class Universe;

@@ -55,25 +55,11 @@ Model::Model( World w, const std::string & _storage_type, const std::string & _s
 // -----------------------------------------------------------------------------
 //	_Model
 // -----------------------------------------------------------------------------
-/*
-_Model::_Model(Storage _storage, const string & _options)
-{
-    //_World& world = _World::instance();
-    librdf_storage* st = DEREF( Storage, librdf_storage, _storage );
-
-    // Get a pointer to a model. We control its lifetime. 
-    model = librdf_new_model(world, st, _options.c_str());
-    if(!model)
-	throw VX(Error) << "Failed to allocate model";
-}
-*/
-// -----------------------------------------------------------------------------
 
 _Model::_Model( World _w, const std::string & _storage_type, const std::string & _storage_name,
                 const std::string & _storage_options, const std::string & _model_options )
 	: world(_w)
 {
-	//_World& world = _World::instance();
 	librdf_world*w = DEREF( World, librdf_world, _w);
 
 	storage = librdf_new_storage(w,  _storage_type.c_str(), 
@@ -90,19 +76,6 @@ _Model::_Model( World _w, const std::string & _storage_type, const std::string &
 }
 
 // -----------------------------------------------------------------------------
-/*
-_Model::_Model(const _Model & _model)
-{
-    cout << "creating copy of model" << endl;
-    //SF  BUGGY!!! <-> SEGFAULT
-    // Get a pointer to a model. We control its lifetime.
-    model = librdf_new_model_from_model(_model);
-    if(!model)
-	throw VX(Error) << "Failed to allocate model";
-}
-*/
-
-// -----------------------------------------------------------------------------
 
 _Model::~_Model()
 {
@@ -117,14 +90,6 @@ _Model::~_Model()
     }
 }
 
-// -----------------------------------------------------------------------------
-/*
-Model
-_Model::copy()
-{
-	return Model( new _Model( *this ));
-}
-*/
 // -----------------------------------------------------------------------------
 
 int
@@ -222,7 +187,6 @@ _Model::contains(Statement _statement) const
     librdf_statement *s = DEREF( Statement, librdf_statement, _statement );
     int status = librdf_model_contains_statement(model, s);
 
-    //if(status < 0)
     if(status > 0)
     {
 	throw VX(Error) << "Illegal RDF Statement";
@@ -370,17 +334,14 @@ _Model::savePrefixes()
 	Prefixes &prefs = world->prefixes();
 	ResourceNode pred( world, URI( prefs.uriForm("rdfxx:hasPrefix")));
 
-	cout << "saving prefixes... " << endl;
 	for ( auto & I : world->prefixes() )
 	{
-		cout << I.first << " --> " << I.second->toString() << endl;
 		ResourceNode subj( world, I.second );
 		LiteralNode  obj( world, Literal(I.first));
 		Statement st( world, subj, pred, obj );
 		if ( ! contains( st ))
 			add( st );	
 	}
-	cout << "done saving prefixes" << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -397,8 +358,6 @@ _Model::updatePrefixes()
 	_Query q( world, qs );
 	QueryResults qr( q.execute( model ));
 
-	// cerr << qr->toString() << endl;
-	
 	Format format = {false, false, "_", false, false, "en", false };
 	for( auto &P : *qr )
 	{
@@ -407,7 +366,6 @@ _Model::updatePrefixes()
 		if ( prefix->isLiteral() && uri->isResource() )
 		{
 			prefs.insert( prefix->toString(format), uri->toURI() );
-			// cout << "Inserting prefix " << prefix->toString(format) << endl;
 		}
 		else
 			throw VX(Alert) << "Unexpected node types";
