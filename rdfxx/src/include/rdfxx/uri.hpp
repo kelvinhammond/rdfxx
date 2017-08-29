@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <memory>
+#include <map>
 #include <librdf.h>
 #include <rdfxx/rdfxx.h>
 
@@ -49,6 +50,8 @@ class _URI : public URI_
     librdf_uri* uri;
     _URI( const _URI & ) = delete;
     void operator = ( const _URI & ) = delete;
+
+    static std::map< Concept, librdf_concepts_index > concepts;
 
     public:
     //! RDF C++ URI constructor.
@@ -72,6 +75,8 @@ class _URI : public URI_
 
     // create normalised uri
     _URI( const char *uri_string, URI source_uri, URI base_uri );
+
+    _URI( World, Concept );
 
     //
     // create relative uri

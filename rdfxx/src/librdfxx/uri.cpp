@@ -29,12 +29,47 @@
 #include <rdfxx/except.h>
 #include <rdfxx/uri.hpp>
 #include <rdfxx/world.hpp>
+#include <rdf_concepts.h>
 
 using namespace rdf;
 using namespace std;
 
 // -----------------------------------------------------------------------------
 //	URI
+// -----------------------------------------------------------------------------
+
+std::map< Concept, librdf_concepts_index > _URI::concepts =
+	{
+        	{ Concept::Container, 		LIBRDF_CONCEPT_S_Container },
+		{ Concept::Bag, 		LIBRDF_CONCEPT_MS_Bag },
+		{ Concept::Sequence, 		LIBRDF_CONCEPT_MS_Seq },
+		{ Concept::Alternative, 	LIBRDF_CONCEPT_MS_Alt },
+		{ Concept::aboutEach, 		LIBRDF_CONCEPT_MS_aboutEach },
+        	{ Concept::List, 		LIBRDF_CONCEPT_RS_List },
+		{ Concept::first, 		LIBRDF_CONCEPT_RS_first },
+		{ Concept::rest, 		LIBRDF_CONCEPT_RS_rest },
+		{ Concept::nil, 		LIBRDF_CONCEPT_RS_nil },
+		{ Concept::Statement, 		LIBRDF_CONCEPT_MS_Statement },
+		{ Concept::object, 		LIBRDF_CONCEPT_MS_object },
+		{ Concept::predicate, 		LIBRDF_CONCEPT_MS_predicate },
+		{ Concept::subject, 		LIBRDF_CONCEPT_MS_subject },
+        	{ Concept::Resource, 		LIBRDF_CONCEPT_S_Resource },
+		{ Concept::Class, 		LIBRDF_CONCEPT_S_Class },
+		{ Concept::subClassOf, 		LIBRDF_CONCEPT_S_subClassOf },
+		{ Concept::type, 		LIBRDF_CONCEPT_MS_type },
+		{ Concept::Property, 		LIBRDF_CONCEPT_MS_Property },
+		{ Concept::subPropertyOf,	LIBRDF_CONCEPT_S_subPropertyOf },
+        	{ Concept::domain, 		LIBRDF_CONCEPT_S_domain },
+		{ Concept::range, 		LIBRDF_CONCEPT_S_range },
+		{ Concept::ConstraintProperty, 	LIBRDF_CONCEPT_S_ConstraintProperty },
+		{ Concept::ConstraintResource, 	LIBRDF_CONCEPT_S_ConstraintResource },
+        	{ Concept::Description, 	LIBRDF_CONCEPT_MS_Description },
+		{ Concept::label, 		LIBRDF_CONCEPT_S_label },
+		{ Concept::seeAlso, 		LIBRDF_CONCEPT_S_seeAlso },
+		{ Concept::comment, 		LIBRDF_CONCEPT_S_comment },
+		{ Concept::isDefinedBy, 	LIBRDF_CONCEPT_S_isDefinedBy }
+	};
+
 // -----------------------------------------------------------------------------
 
 /*
@@ -53,6 +88,12 @@ URI::URI(URI_* _uri)
 
 URI::URI( World w, const std::string & _uri )
 	: std::shared_ptr< URI_ >( new _URI( w, _uri.c_str() ))
+{}
+
+// -----------------------------------------------------------------------------
+
+URI::URI( World w, Concept c )
+	: std::shared_ptr< URI_ >( new _URI( w, c ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -97,6 +138,17 @@ _URI::_URI( const char* _filename, World _w )
 {
     	librdf_world* w = DEREF( World, librdf_world, _w);
 	uri = librdf_new_uri_from_filename( w, _filename );
+    	if(!uri)
+		throw VX(Error) << "Failed to allocate URI";
+}
+
+// -----------------------------------------------------------------------------
+
+_URI::_URI( World _w, Concept concept )
+{
+    	librdf_world* w = DEREF( World, librdf_world, _w);
+	librdf_uri* _uri = librdf_get_concept_uri_by_index( w, concepts[concept] );
+	uri = librdf_new_uri_from_uri( _uri );
     	if(!uri)
 		throw VX(Error) << "Failed to allocate URI";
 }

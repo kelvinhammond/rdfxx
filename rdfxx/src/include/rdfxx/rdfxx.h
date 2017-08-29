@@ -79,6 +79,31 @@ using QueryResults = std::shared_ptr< QueryResults_ >;
 using StatementRef = std::shared_ptr< Statement_ >;
 
 // ---------------------------------------------------------------
+
+enum class Concept
+{
+	// Containers
+	Container, Bag, Sequence, Alternative, aboutEach, 
+
+	// Collections
+	List, first, rest, nil, 
+
+	// Reification
+	Statement, object, predicate, subject, 
+	
+	// Classes
+	Resource, Class, subClassOf, type, Property, subPropertyOf,
+	domain, range, ConstraintProperty, ConstraintResource, 
+
+	// Descriptive stuff
+	Description, label, seeAlso, comment, isDefinedBy
+
+	// probably not useful in our models
+	// RDF, value, Literal, XMLLiteral, NodeID, li, 
+	// aboutEachPrefix, // depricated
+};
+
+// ---------------------------------------------------------------
 //
 // The following declarations allow the user to create an object
 // and its associated shared pointer as if it were an ordinary object
@@ -91,6 +116,7 @@ public:
 	URI() : std::shared_ptr< URI_ >( nullptr ) {}
 	URI( URI_* );
 	URI( World,  const std::string &uri_string );
+	URI( World, Concept );
 
 	// convert a file name into a URI
 	URI( const std::string & filename, World );
@@ -175,6 +201,7 @@ class ResourceNode : public std::shared_ptr< ResourceNode_ >
 {
 public:
 	ResourceNode( World, URI );
+	ResourceNode( World, Concept );
 };
 
 class LiteralNode : public std::shared_ptr< LiteralNode_ >

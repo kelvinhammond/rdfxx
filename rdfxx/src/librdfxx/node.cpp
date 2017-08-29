@@ -254,6 +254,43 @@ Literal::initXSDtypes()
 // -----------------------------------------------------------------------------
 //	Node
 // -----------------------------------------------------------------------------
+
+std::map< Concept, librdf_concepts_index > _ResourceNode::concepts =
+	{
+        	{ Concept::Container, 		LIBRDF_CONCEPT_S_Container },
+		{ Concept::Bag, 		LIBRDF_CONCEPT_MS_Bag },
+		{ Concept::Sequence, 		LIBRDF_CONCEPT_MS_Seq },
+		{ Concept::Alternative, 	LIBRDF_CONCEPT_MS_Alt },
+		{ Concept::aboutEach, 		LIBRDF_CONCEPT_MS_aboutEach },
+        	{ Concept::List, 		LIBRDF_CONCEPT_RS_List },
+		{ Concept::first, 		LIBRDF_CONCEPT_RS_first },
+		{ Concept::rest, 		LIBRDF_CONCEPT_RS_rest },
+		{ Concept::nil, 		LIBRDF_CONCEPT_RS_nil },
+		{ Concept::Statement, 		LIBRDF_CONCEPT_MS_Statement },
+		{ Concept::object, 		LIBRDF_CONCEPT_MS_object },
+		{ Concept::predicate, 		LIBRDF_CONCEPT_MS_predicate },
+		{ Concept::subject, 		LIBRDF_CONCEPT_MS_subject },
+        	{ Concept::Resource, 		LIBRDF_CONCEPT_S_Resource },
+		{ Concept::Class, 		LIBRDF_CONCEPT_S_Class },
+		{ Concept::subClassOf, 		LIBRDF_CONCEPT_S_subClassOf },
+		{ Concept::type, 		LIBRDF_CONCEPT_MS_type },
+		{ Concept::Property, 		LIBRDF_CONCEPT_MS_Property },
+		{ Concept::subPropertyOf,	LIBRDF_CONCEPT_S_subPropertyOf },
+        	{ Concept::domain, 		LIBRDF_CONCEPT_S_domain },
+		{ Concept::range, 		LIBRDF_CONCEPT_S_range },
+		{ Concept::ConstraintProperty, 	LIBRDF_CONCEPT_S_ConstraintProperty },
+		{ Concept::ConstraintResource, 	LIBRDF_CONCEPT_S_ConstraintResource },
+        	{ Concept::Description, 	LIBRDF_CONCEPT_MS_Description },
+		{ Concept::label, 		LIBRDF_CONCEPT_S_label },
+		{ Concept::seeAlso, 		LIBRDF_CONCEPT_S_seeAlso },
+		{ Concept::comment, 		LIBRDF_CONCEPT_S_comment },
+		{ Concept::isDefinedBy, 	LIBRDF_CONCEPT_S_isDefinedBy }
+	};
+
+
+
+// -----------------------------------------------------------------------------
+
 #if USE_NODE
 Node::Node()
 	: std::shared_ptr< Node_ >( nullptr )
@@ -313,6 +350,12 @@ Node::Node( NodeRef _ref )
 
 ResourceNode::ResourceNode( World w, URI uri )
 	: std::shared_ptr< ResourceNode_ >( new _ResourceNode( w, uri ))
+{}
+
+// -----------------------------------------------------------------------------
+
+ResourceNode::ResourceNode( World w, Concept c)
+	: std::shared_ptr< ResourceNode_ >( new _ResourceNode( w, c ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -718,6 +761,21 @@ _ResourceNode::_ResourceNode( World _w, URI _uri )
 
     	// Create a new node. User controls lifetime.
     	node = librdf_new_node_from_uri(w, uri);
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
+}
+
+// -----------------------------------------------------------------------------
+
+_ResourceNode::_ResourceNode( World _w, Concept concept )
+	: _NodeBase( _w, 0, true )
+{
+    	// _World& world = _World::instance();
+	librdf_world *w = DEREF( World, librdf_world, _w );
+
+    	// Create a new node. User controls lifetime.
+    	librdf_node * _node = librdf_get_concept_resource_by_index( w, concepts[concept] );
+    	node = librdf_new_node_from_node(_node);
     	if(!node)
 		throw VX(Error) << "Failed to allocate node";
 }

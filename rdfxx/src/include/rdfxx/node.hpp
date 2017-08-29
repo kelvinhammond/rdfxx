@@ -56,6 +56,7 @@ class _Node : public Node_
     //
     bool free;
 
+
     // Hold the dynamically allocated node string, returned by the
     // librdf_node_to_string() function. Used to free the memory 
     // when the object is destructed.
@@ -178,8 +179,11 @@ using _Node = _NodeBase;
 
 class _ResourceNode : public ResourceNode_, public _NodeBase
 {
+    	static std::map< Concept, librdf_concepts_index > concepts;
 public:
 	_ResourceNode( World, URI );
+    	_ResourceNode( World, Concept );
+
 	_ResourceNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
 	// Node copy() const { return _NodeBase::copy(); }

@@ -11,12 +11,14 @@ YYYY-MM-DD  John Doe  <johndoe@example.com>
 Future
 	* Internationalisation
 	* Postgresql storage
+	* Reification
 	* Submodels
-	* RDFS concepts
 
 2017-08-28	Brenton Ross
 
-	* all: Added support for blank nodes
+	* all:	RDFS concepts
+	* all: 	Added support for blank nodes
+	* all:	Saved prefixes into the models.
 
 2017-08-21	Brenton Ross
 

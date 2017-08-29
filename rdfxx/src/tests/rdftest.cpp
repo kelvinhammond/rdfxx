@@ -27,6 +27,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <unistd.h>
 
 using namespace std;
 using namespace SASSY;
@@ -128,6 +129,9 @@ URITestCase::runTest()
 		URI uri6( prefixes.uriForm("cd:stuff"));
 		rc = rc && test( uri6->toString() == "http://purl.org/dc/0.1/title#stuff", "uri 11");
 		rc = rc && test( prefixes.prefixForm(uri6) == "cd:stuff", "uri 12");
+
+		URI uri7( world, Concept::label );
+		rc = rc && test( prefixes.prefixForm( uri7) == "rdfs:label", "uri 13");
 
 
 		cout << "---------- end URI tests -------------" << endl;
@@ -266,6 +270,10 @@ NodeTestCase::runTest()
 		format.usePrefixes = true;
 		rc = rc && test( nf1->toString(format) == "ofw:stuff", "node 18");
 		if ( ! rc ) cout << "\"" << nf1->toString(format) << "\"" << endl;
+
+		// concept test
+		ResourceNode nc1(world, Concept::type );
+		rc = rc && test( nc1->toString(format) == "rdf:type", "node 19");
 
 		cout << "------------------ end nodes --------------" << endl;
 	}
@@ -763,6 +771,8 @@ ConstructTestCase::ConstructTestCase(csr nm)
 
 	world->prefixes().base( URI( string(testFile) + "#", world));
 	world->prefixes().insert("w3c", URI(world,"http://www.w3.org/2000/03/example/classes#"));
+
+	::unlink( "/tmp/blank-test.rdf" );
 }
 
 // ------------------------------------------------------------
