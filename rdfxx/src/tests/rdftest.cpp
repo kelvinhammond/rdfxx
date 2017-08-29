@@ -621,7 +621,8 @@ QueryTestCase::runTest()
 		Stream x = m1->toStream();
 		while ( ! x->end() )
 		{
-			cout << "stmnt: >>> " << x->current()->toString(format) << " <<< " << endl;
+			Statement st(x->current());
+			cout << "stmnt: >>> " << st->toString(format) << " <<< " << endl;
 			x->next();
 		}
 		

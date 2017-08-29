@@ -68,7 +68,7 @@ enum Severity {
 
 /// An exception object with severity levels.
 
-/** \class vxt vx.h vici/vx.h
+/** \class vxt except.h rdfxx/except.h
  *
  * The vxt class is an exception object that includes
  * severity levels and has stream syntax for creating messages.

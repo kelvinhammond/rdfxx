@@ -78,7 +78,8 @@ int main(void)
         while(!stream->end())
         {
              model->add(stream->current());
-             cout << ++count << ": " << stream->current()->toString() << endl;
+	     Statement st(stream->current());
+             cout << ++count << ": " << st->toString() << endl;
              stream->next();
         }
         cout << "Processed " << count << " statements." << endl;
