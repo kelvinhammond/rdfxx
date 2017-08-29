@@ -34,9 +34,6 @@
 
 #include <rdfxx/except.h>
 
-// remove once Node no longer required
-#define USE_NODE 0
-
 namespace rdf
 {
 
@@ -52,11 +49,9 @@ namespace rdf
 class World_;
 class Model_;
 class Node_;
-#if ! USE_NODE
 class ResourceNode_;
 class LiteralNode_;
 class BlankNode_;
-#endif // USE_NODE
 class Parser_;
 class Query_;
 class QueryResults_;
@@ -158,25 +153,6 @@ public:
 
 // ---------------------------------------------------------------
 
-#if USE_NODE
-class Node : public std::shared_ptr< Node_ >
-{
-public:
-	Node();		// nullptr
-	Node( World );	// blank
-	Node( Node_* );
-	Node( NodeRef );
-	Node( World, URI );
-	Node( World, const Literal & );
-
-	// Node( World, const std::string & uri );
-
-	// _is_wf_xml - true if its well formed XML
-	// don't set _is_wf_xml true and have xml_language defined
-	//Node( World, const std::string & literal, bool _is_wf_xml,
-	//		const std::string & xml_language = "" );
-};
-#else
 using Node = std::shared_ptr< Node_ >;
 
 class ResourceNode : public std::shared_ptr< ResourceNode_ >
@@ -197,7 +173,6 @@ class BlankNode : public std::shared_ptr< BlankNode_ >
 public:
 	BlankNode( World, const std::string &id = "" );
 };
-#endif
 
 // ---------------------------------------------------------------
 
@@ -499,8 +474,6 @@ public:
 // TODO operator == (Node, Node)
 // TODO operator << ( ostream &, Node )
 
-#if ! USE_NODE
-
 class ResourceNode_ : public Node_
 {
 public:
@@ -522,7 +495,6 @@ class BlankNode_ : public Node_
 	virtual std::string toString() const = 0;
 	virtual std::string toString(const Format &) const = 0;
 };
-#endif // USE_NODE
 
 // ---------------------------------------------------------------
 

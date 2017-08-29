@@ -134,12 +134,8 @@ _QueryResult::getBoundValue(int _offset) const
     }
 
     // The library returns a new node pointer so it will need to be freed
-#if USE_NODE
-    Node value( new _Node(world, librdf_query_results_get_binding_value(query_results, _offset), true));
-#else
 	librdf_node *n = librdf_query_results_get_binding_value(query_results, _offset);
 	Node value( _NodeBase::make( world, n, true ));
-#endif
     if(!value)
 	throw VX(Error) << "Failed to allocate node";
 
@@ -165,11 +161,7 @@ _QueryResult::getBoundValue(const std::string & _name ) const
     }
 
     // The library returns a new node pointer so it will need to be freed
-#if USE_NODE
-    Node value( new _Node( world, n, true ));
-#else
 	Node value( _NodeBase::make( world, n, true ));
-#endif
     if(!value)
 	throw VX(Error) << "Failed to allocate node";
 

@@ -42,105 +42,6 @@ namespace rdf
 // ============================================================================
 //! RDF C++ _Node
 // ============================================================================
-#if USE_NODE
-class _Node : public Node_
-{
-    // ------------------------------------------------------------------------
-    protected:
-    World world;
-    librdf_node* node;		// owned except when free is false
- 
-    // Indicate whether to free node in destructor. 
-    // Used to prevent freeing shared pointers ie pointers that are references into
-    // librdf structures.
-    //
-    bool free;
-
-    // ------------------------------------------------------------------------
-    public:
-    //! RDF C++ Node constructor.
-    /*! Initializes a empty Node object.
-     *  Throws AllocationError if allocation/initialization failed. 
-     */
-    _Node();
-    _Node( World );
-
-    //! RDF C++ Node constructor.
-    /*! Initializes a new Node object from a given URI string.
-     *  Throws AllocationError if allocation/initialization failed. 
-     */
-    _Node( World, const std::string & _uri);
-
-    //! RDF C++ Node constructor.
-    /*! Initializes a new Node object from a given URI string.
-     *  Throws AllocationError if allocation/initialization failed. 
-     *
-     *  @param uri A URI string.
-     */
-    _Node( World, const char* _uri);
-
-    //! RDF C++ Node constructor.
-    /*! Initializes a new Node object with a given URI object.
-     *  Throws AllocationError if allocation/initialization failed. 
-     *
-     *  @param uri A URI object.
-     */
-    _Node( World,  URI _uri);
-
-    _Node( World, const Literal & );
-
-    //! RDF C++ Node constructor.
-    /*! Initializes a new Node object with a given URI.
-     *  Throws AllocationError if allocation/initialization failed. 
-     *
-     *  @param uri A URI string.
-     */
-    _Node( World, const char* _literal, bool _is_wf_xml, const char* xml_language=0);
-
-    //! RDF C++ Node copy-constructor.
-    /*! Copies a RDF C++ Node object.
-     *  Throws AllocationError if allocation/initialization failed. 
-     * 
-     *  @param node A RDF C++ Node object reference.
-     */
-    _Node( const _Node& _node);
-
-    //  RDF C++ Node constructor.
-    /*  Initializes a new RDF Node from a given librdf_node* pointer.
-     *
-     *  NOTE:
-     *  Intentionally not documented, only used internally in QueryResult Object.
-     *  This constructor prevents freeing the stored librdf_node*.
-     *
-     *  Throws ArgumentError if given a 0-pointer.
-     */ 
-    _Node(World, librdf_node* _node, bool freeOnDelete);
-
-    //! RDF C++ Node destructor.
-    /*  Deletes the internally stored librdf_node object.
-     */
-    ~_Node();
-
-    // Node copy() const;
-
-    //! Get the node as string.
-    /*! 
-     *  @return Node as const char* string.
-     */
-    std::string toString() const;
-    std::string toString( const Format & ) const;
-
-	URI toURI() const;
-
-	bool isResource() const;
-	bool isBlank() const;
-	bool isLiteral() const;
-
-    // This is used internally for the C API.
-    operator librdf_node*() const;
-};
-
-#else	// USE_NODE
 // ------------------------------------------------------------------------
 
 class _NodeBase
@@ -231,7 +132,6 @@ public:
 	virtual bool isResource() const { return false; }
 };
 
-#endif
 // ------------------------------------------------------------------------
 
 

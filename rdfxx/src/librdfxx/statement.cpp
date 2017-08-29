@@ -87,15 +87,9 @@ _Statement::_Statement(World _w, Node _subject, Node _predicate, Node _object)
 	 : world(_w), statement(0), free(true)
 {
 	librdf_world* w = DEREF( World, librdf_world, _w );
-#if USE_NODE
-	librdf_node *s = DEREF( Node, librdf_node, Node(_subject) );	// fixed
-	librdf_node *p = DEREF( Node, librdf_node, Node(_predicate) );	// fixed
-	librdf_node *o = DEREF( Node, librdf_node, Node(_object) );	// fixed
-#else
 	librdf_node *s = _NodeBase::derefNode( Node(_subject) );
 	librdf_node *p = _NodeBase::derefNode( Node(_predicate) );
 	librdf_node *o = _NodeBase::derefNode( Node(_object) );
-#endif
 	//
 	// librdf takes ownership of the nodes which may be confusing
 	// for the users of this library, so we make copies.
@@ -163,11 +157,7 @@ _Statement::subject() const
     if(subject)
     {
 	// subject is a shared pointer within librdf, so we won't delete it
-#if USE_NODE
-    	subject_holder.reset( new _Node(world, subject, false));
-#else
 	subject_holder = _NodeBase::make( world, subject, false);
-#endif
     }
     else
     {	
@@ -181,11 +171,7 @@ _Statement::subject() const
 void
 _Statement::subject(Node _node)
 {
-#if USE_NODE
-    librdf_node* n = DEREF( Node, librdf_node, Node(_node) );	// fixed
-#else
     librdf_node* n = _NodeBase::derefNode( Node(_node) );
-#endif
     //
     // this call takes ownership, so we make a copy
     librdf_statement_set_subject(statement, 
@@ -202,11 +188,7 @@ _Statement::predicate() const
     if(predicate)
     {
 	// predicate is a shared pointer within librdf, so we won't delete it
-#if USE_NODE
-        predicate_holder.reset( new _Node( world, predicate, false ));
-#else
 	predicate_holder = _NodeBase::make( world, predicate, false );
-#endif
     }
     else
     {
@@ -220,11 +202,7 @@ _Statement::predicate() const
 void
 _Statement::predicate(Node _node)
 {
-#if USE_NODE
-    librdf_node* n = DEREF( Node, librdf_node, Node(_node) );	// fixed
-#else
     librdf_node* n = _NodeBase::derefNode( Node(_node) );
-#endif
     // this call takes ownership, so we make a copy
     librdf_statement_set_predicate(statement,
     		librdf_new_node_from_node(n) );
@@ -240,11 +218,7 @@ _Statement::object() const
     if(object)
     {
 	// object is a shared pointer within librdf, so we won't delete it
-#if USE_NODE
-        object_holder.reset( new _Node( world, object, false ));
-#else
 	object_holder = _NodeBase::make( world, object, false );
-#endif
     }
     else
     {
@@ -258,11 +232,7 @@ _Statement::object() const
 void
 _Statement::object(Node _node)
 {
-#if USE_NODE
-    librdf_node* n = DEREF( Node, librdf_node, Node(_node) );	// fixed
-#else
     librdf_node* n = _NodeBase::derefNode( Node(_node) );
-#endif
     // this call takes ownership, so we make a copy
     librdf_statement_set_object(statement,
     		librdf_new_node_from_node(n) );

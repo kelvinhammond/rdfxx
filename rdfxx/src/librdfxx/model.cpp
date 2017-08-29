@@ -127,15 +127,9 @@ _Model::toStream()
 bool
 _Model::add(Node _subject, Node _predicate, Node _object)
 {
-#if USE_NODE
-    librdf_node *s = DEREF( Node, librdf_node, _subject );  // fixed
-    librdf_node *p = DEREF( Node, librdf_node, _predicate );  // fixed
-    librdf_node *o = DEREF( Node, librdf_node, _object );  // fixed
-#else
     librdf_node *s = _NodeBase::derefNode( _subject );
     librdf_node *p = _NodeBase::derefNode( _predicate );
     librdf_node *o = _NodeBase::derefNode( _object );
-#endif
     int status = librdf_model_add(model, s, p, o );
 
     return (status == 0) ? true : false;
@@ -200,13 +194,8 @@ _Model::contains(Statement _statement) const
 std::vector< Node >
 _Model::predicates( Node subject, Node object )
 {
-#if USE_NODE
-	librdf_node *s = DEREF( Node, librdf_node, subject );  // fixed
-	librdf_node *o = DEREF( Node, librdf_node, object );  // fixed
-#else
 	librdf_node *s = _NodeBase::derefNode( subject );
 	librdf_node *o = _NodeBase::derefNode( object );
-#endif
 	std::vector< Node > nodes;
 	librdf_iterator *iter = librdf_model_get_arcs( model, s, o );
 	if ( iter )
@@ -223,13 +212,8 @@ _Model::predicates( Node subject, Node object )
 std::vector< Node >
 _Model::objects( Node subject, Node predicate )
 {
-#if USE_NODE
-	librdf_node *s = DEREF( Node, librdf_node, subject );  // fixed
-	librdf_node *p = DEREF( Node, librdf_node, predicate );  // fixed
-#else
 	librdf_node *s = _NodeBase::derefNode( subject );
 	librdf_node *p = _NodeBase::derefNode( predicate );
-#endif
 	std::vector< Node > nodes;
 	librdf_iterator *iter = librdf_model_get_targets( model, s, p );
 	if ( iter )
@@ -246,13 +230,8 @@ _Model::objects( Node subject, Node predicate )
 std::vector< Node >
 _Model::subjects( Node predicate, Node object )
 {
-#if USE_NODE
-	librdf_node *p = DEREF( Node, librdf_node, predicate );  // fixed
-	librdf_node *o = DEREF( Node, librdf_node, object );  // fixed
-#else
 	librdf_node *p = _NodeBase::derefNode( predicate );
 	librdf_node *o = _NodeBase::derefNode( object );
-#endif
 	std::vector< Node > nodes;
 	librdf_iterator *iter = librdf_model_get_sources( model, p, o );
 	if ( iter )
@@ -270,11 +249,7 @@ _Model::subjects( Node predicate, Node object )
 std::vector< Node >
 _Model::arcsIn( Node object )
 {
-#if USE_NODE
-	librdf_node *o = DEREF( Node, librdf_node, object );  // fixed
-#else
 	librdf_node *o = _NodeBase::derefNode( object );
-#endif
 	std::vector< Node > nodes;
 	librdf_iterator *iter = librdf_model_get_arcs_in( model, o );
 	if ( iter )
@@ -291,11 +266,7 @@ _Model::arcsIn( Node object )
 std::vector< Node >
 _Model::arcsOut( Node subject )
 {
-#if USE_NODE
-	librdf_node *s = DEREF( Node, librdf_node, subject );  // fixed
-#else
 	librdf_node *s = _NodeBase::derefNode( subject );
-#endif
 	std::vector< Node > nodes;
 	librdf_iterator *iter = librdf_model_get_arcs_out( model, s );
 	if ( iter )
@@ -315,12 +286,8 @@ _Model::nodeIteratorToVector( librdf_iterator *iter, std::vector< Node > & nodes
 	while( ! librdf_iterator_end( iter ))
 	{
 		librdf_node *x = (librdf_node*)librdf_iterator_get_object( iter );
-#if USE_NODE
-		Node n( new _Node( world, librdf_new_node_from_node(x), true ));
-#else
 		librdf_node *xn = librdf_new_node_from_node(x);
 		Node n( _NodeBase::make( world, xn, true ));
-#endif
 		nodes.push_back(n);
 		librdf_iterator_next( iter );
 	}

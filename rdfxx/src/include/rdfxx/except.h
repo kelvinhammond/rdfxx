@@ -3,8 +3,7 @@
  *
  * 			except.h
  *
- * 	Copyright 2007 - 2008	Sebastian Faubel
- * 	Copyright 2017		Brenton Ross
+ * 	Copyright 2001 - 2017		Brenton Ross
  *
  * -----------------------------------------------------------------------------
  * LICENSE
