@@ -1,7 +1,9 @@
-bin_PROGRAMS=foaf projection
+noinst_PROGRAMS=foaf projection
 
 foaf_SOURCES=foaf.cpp
 projection_SOURCES=projection.cpp
+
+EXTRA_DIST = foaf.rdf model_files.rdf
 
 ACLOCAL_AMFLAGS=-I ../m4
 AM_CXXFLAGS = -std=c++11

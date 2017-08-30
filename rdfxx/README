@@ -1,2 +1,51 @@
 This project aims to wrap librdf, the Redland libraries, in C++.
 
+It provides librdfxx for access to RDF data stores;
+and rdf2dot for creating the input to the GraphViz dot program for displaying RDF.
+
+WARNING
+This is prototype quality code. You should not install it into /usr etc
+until the final version of SASSY is released.
+
+Prerequisites
+~~~~~~~~~~~~~
+
+You will need the development versions of libxml2, and librdf
+(the latter should include librasqal and libraptor).
+
+You will also need to build and install the SASSY CFI project.
+(The librdfxx does not need this, but the test program and rdf2dot do.)
+
+
+Set an environment variable called SASSY to the directory to install into.
+$ cd ~/sassy
+$ export SASSY=$(pwd)
+
+You may need to rebuild CFI to install into this directory.
+
+Build Instructions
+~~~~~~~~~~~~~~~~~~
+
+Unpack the tar file.
+cd into sassy-rdfxx.0.0
+
+Create a build directory and configure the software for your environment:
+$ mkdir build
+$ cd build
+$ ../configure --prefix=$SASSY
+
+Build and test:
+$ make
+$ make check
+
+Install into $SASSY
+$ make install
+
+Release Notes
+~~~~~~~~~~~~~
+
+Build sassy-rdfxx.0.0.r21 2017-08-31
+	An initial version.
+
+
+
