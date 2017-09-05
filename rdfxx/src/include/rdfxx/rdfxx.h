@@ -196,6 +196,9 @@ public:
 
 	//! Create resource node for a concept.
 	ResourceNode( World, Concept );
+
+	//! Create a numbered resource node for containers
+	ResourceNode( World, int );
 };
 
 //! \class LiteralNode rdfxx.h rdfxx/rdfxx.h
@@ -416,6 +419,7 @@ private:
 	URI base_uri;
 	std::map< std::string, URI > uriForPrefix;
 	std::map< std::string, std::string > prefixForURI;
+	static int anonCounter;
 public:
 	//! Constructor
 	Prefixes( World );
@@ -425,6 +429,9 @@ public:
 
 	//! Set the base URI
 	void base( URI uri ) { base_uri = uri; }
+	
+	//! insert an anonymous namespace
+	void anonymous( URI uri );
 
 	//! Set the base URI.
 	void base( const std::string & filename );  // appends # to normalised file name
@@ -731,6 +738,9 @@ public:
 
 	//! Get the URI for a Node
 	virtual URI toURI() const = 0;
+
+	//! Get the ordinal value for a list item.
+	virtual int listItemOrdinal() const = 0;
 };
 
 //! \class LiteralNode_ rdfxx.h rdfxx/rdfxx.h

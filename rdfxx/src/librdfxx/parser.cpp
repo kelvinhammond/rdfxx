@@ -93,7 +93,14 @@ _Parser::parseIntoModel( Model _model, URI _file, URI _base_uri)
 	{
 		const char *prfx = librdf_parser_get_namespaces_seen_prefix( parser, i );
 		URI ns( new _URI( librdf_parser_get_namespaces_seen_uri( parser, i )));
-		world->prefixes().insert( string(prfx), ns );
+		if ( prfx )
+		{
+			world->prefixes().insert( string(prfx), ns );
+		}
+		else
+		{
+			world->prefixes().anonymous( ns );
+		}
 	}
 
 	//

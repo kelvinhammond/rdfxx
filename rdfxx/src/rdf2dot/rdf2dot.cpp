@@ -162,7 +162,7 @@ int main( int argc, char *argv[] )
 
 	World world = Universe::instance().world("rdf2dot");
 	world->prefixes().base( URI( string(path) + "#", world));
-	world->prefixes().insert("w3c", URI(world,"http://www.w3.org/2000/03/example/classes#"));
+	// world->prefixes().insert("w3c", URI(world,"http://www.w3.org/2000/03/example/classes#"));
 
 	model = Model(world, "memory" );
 

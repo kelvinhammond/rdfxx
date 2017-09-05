@@ -77,12 +77,14 @@ class _ResourceNode : public ResourceNode_, public _NodeBase
 public:
 	_ResourceNode( World, URI );
     	_ResourceNode( World, Concept );
+    	_ResourceNode( World, int );
 
 	_ResourceNode( World w, librdf_node *n, bool f) : _NodeBase( w, n, f) {}
 
 	virtual std::string toString() const { return _NodeBase::toString(); }
 	virtual std::string toString(const Format &) const;
 	virtual URI toURI() const;
+	virtual int listItemOrdinal() const;
 
 	// this will be removed when _Node is removed.
 	virtual Literal toLiteral() const;

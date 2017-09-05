@@ -304,6 +304,12 @@ ResourceNode::ResourceNode( World w, Concept c)
 {}
 
 // -----------------------------------------------------------------------------
+
+ResourceNode::ResourceNode( World w, int i)
+	: std::shared_ptr< ResourceNode_ >( new _ResourceNode( w, i ))
+{}
+
+// -----------------------------------------------------------------------------
 //	LiteralNode
 // -----------------------------------------------------------------------------
 
@@ -431,6 +437,21 @@ _ResourceNode::_ResourceNode( World _w, Concept concept )
 
 // -----------------------------------------------------------------------------
 
+_ResourceNode::_ResourceNode( World _w, int i )
+	: _NodeBase( _w, 0, true )
+{
+	librdf_world *w = DEREF( World, librdf_world, _w );
+
+    	// Create a new node. User controls lifetime.
+	string s("_:");
+	s += to_string( i );
+    	node = librdf_new_node_from_uri_string(w, (const unsigned char*)s.c_str());
+    	if(!node)
+		throw VX(Error) << "Failed to allocate node";
+}
+
+// -----------------------------------------------------------------------------
+
 std::string
 _ResourceNode::toString(const Format &format) const
 {
@@ -473,6 +494,14 @@ _ResourceNode::toURI() const
 
 	// URI constructor makes a copy so user controls lifetime.
 	return URI( new _URI( u ));
+}
+
+// -----------------------------------------------------------------------------
+
+int
+_ResourceNode::listItemOrdinal() const
+{
+	return librdf_node_get_li_ordinal( node );
 }
 
 // -----------------------------------------------------------------------------
@@ -525,7 +554,11 @@ std::string
 _LiteralNode::toString(const Format & format) const
 {
 	string s;
-	s.assign((char *) librdf_node_get_literal_value(node));
+	// get a reference pointer - don't free it
+	char *val = (char *)librdf_node_get_literal_value(node);
+	if ( val == NULL )
+		return s;
+	s.assign( val );
 	if ( format.quotes )
 	{
 		s = "\"" + s + "\"";

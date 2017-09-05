@@ -65,6 +65,10 @@ Universe::world( const std::string & name )
 //	Prefixes
 // ----------------------------------------------------------------------------
 
+int Prefixes::anonCounter = 1;
+
+// ----------------------------------------------------------------------------
+
 Prefixes::Prefixes( World _w)
 	: world(_w)
 {
@@ -146,6 +150,20 @@ Prefixes::removeBase( URI uri ) const
 	else
 	{
 		return s.substr(p+1);
+	}
+}
+
+// ----------------------------------------------------------------------------
+
+void
+Prefixes::anonymous( URI _uri )
+{
+	string pfx = find( _uri );
+	if ( pfx.empty())
+	{
+		pfx = "pfx";
+		pfx += std::to_string( anonCounter++ );
+		insert( pfx, _uri );
 	}
 }
 
