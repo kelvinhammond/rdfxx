@@ -188,6 +188,25 @@ Prefixes::insert( const std::string &prefix, URI _uri )
 
 // ----------------------------------------------------------------------------
 
+void
+Prefixes::update( const std::string &oldPrefix, const std::string &newPrefix, URI _uri )
+{
+	remove( oldPrefix );
+	insert( newPrefix, _uri );
+}
+
+// ----------------------------------------------------------------------------
+
+void
+Prefixes::remove( const std::string &prefix )
+{
+	URI uri = uriForPrefix[ prefix ];
+	uriForPrefix.erase( prefix );
+	prefixForURI.erase( uri->toString() );
+}
+
+// ----------------------------------------------------------------------------
+
 std::string
 Prefixes::find( URI _uri )
 {

@@ -456,6 +456,12 @@ public:
 	//! Find the prefix for the supplied namespace URI.
 	std::string find( URI );
 
+	//! Update a prefix and namespace
+	void update( const std::string &oldPrefix, const std::string &newPrefix, URI );
+
+	//! Remove a prefix and namespace
+	void remove( const std::string & );
+
 	// methods for converting between the prefix and normal forms
 
 	//! Convert a prefix and fragment to a URI and fragment.
