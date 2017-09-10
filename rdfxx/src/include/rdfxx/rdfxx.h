@@ -199,6 +199,9 @@ public:
 
 	//! Create a numbered resource node for containers
 	ResourceNode( World, int );
+
+	//! Convert a Node into a ResourceNode
+	ResourceNode( Node resourceNode );
 };
 
 //! \class LiteralNode rdfxx.h rdfxx/rdfxx.h
@@ -209,6 +212,9 @@ class LiteralNode : public std::shared_ptr< LiteralNode_ >
 public:
 	//! Create a literal node using a literal value.
 	LiteralNode( World, const Literal & );
+
+	//! Convert a Node to a LiteralNode.
+	LiteralNode( Node literalNode );
 };
 
 //! \class BlankNode rdfxx.h rdfxx/rdfxx.h
@@ -220,6 +226,9 @@ class BlankNode : public std::shared_ptr< BlankNode_ >
 public:
 	//! Create a blank node using a supplied identifier.
 	BlankNode( World, const std::string &id = "" );
+
+	//! Create a BlankNode from a Node
+	BlankNode( Node blankNode );
 };
 
 // ---------------------------------------------------------------
@@ -527,6 +536,7 @@ class Literal
 {
 	// see node.cpp for the implementation
 	static std::map< DataType, std::string > xsd_types;
+	static std::map< DataType, std::string > names;
 	static void initXSDtypes();
 private:
 
@@ -599,9 +609,13 @@ public:
 
 	//! Convert a data type into an xsd form,
 	static std::string toXSD( DataType );
+	static std::string toTypeName( DataType );
 
 	//! Convert an xsd form into a data type
 	static DataType toDataType( const std::string & xsd_type );
+	static DataType asDataType( const std::string & type_name );
+
+	static std::vector< std::string > getDataTypeNames();
 };
 
 // ---------------------------------------------------------------

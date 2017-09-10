@@ -176,9 +176,20 @@ Literal::toXSD( DataType dt )
 // -----------------------------------------------------------------------------
 
 // static
+std::string
+Literal::toTypeName( DataType dt )
+{
+	if ( names.empty()) initXSDtypes();
+	return names[ dt ];
+}
+
+// -----------------------------------------------------------------------------
+
+// static
 DataType
 Literal::toDataType( const std::string & xsd_type )
 {
+	if ( xsd_types.empty()) initXSDtypes();
 	//
 	// converting string to datatype is probably something
 	// for the UI. Hence we can afford to use a slower reverse lookup
@@ -192,7 +203,41 @@ Literal::toDataType( const std::string & xsd_type )
 
 // -----------------------------------------------------------------------------
 
+// static
+DataType
+Literal::asDataType( const std::string & type_name )
+{
+	if ( names.empty()) initXSDtypes();
+	//
+	// converting string to datatype is probably something
+	// for the UI. Hence we can afford to use a slower reverse lookup
+	//
+	for ( auto &x : names )
+	{
+		if ( x.second == type_name ) return x.first;
+	}
+	return DataType::UNDEF;
+}
+
+// -----------------------------------------------------------------------------
+
+// static
+std::vector< std::string >
+Literal::getDataTypeNames()
+{
+	if ( names.empty()) initXSDtypes();
+	vector< string > res;
+	for ( auto &x : names )
+	{
+		res.push_back( x.second );
+	}
+	return res;
+}
+
+// -----------------------------------------------------------------------------
+
 std::map< DataType, std::string > Literal::xsd_types;
+std::map< DataType, std::string > Literal::names;
 
 // static
 void
@@ -248,6 +293,58 @@ Literal::initXSDtypes()
         	{ DataType::NMTOKEN, "xsd:NMTOKEN" },
         	{ DataType::Name, "xsd:Name" },
         	{ DataType::NCName, "xsd:NCName" }
+	};
+
+	names =
+	{
+        	{ DataType::PlainLiteral, "PlainLiteral" },
+        	{ DataType::XMLLiteral, "XMLLiteral" },
+        	{ DataType::XHTML, "HTML" },
+
+        	{ DataType::String, "string" },
+        	{ DataType::Boolean, "boolean" },
+        	{ DataType::Decimal, "decimal" },
+        	{ DataType::Integer, "integer" },
+
+        	{ DataType::Double, "double" },
+        	{ DataType::Float, "float" },
+
+        	{ DataType::Data, "date" },
+        	{ DataType::Time, "time" },
+        	{ DataType::DateTime, "date time" },
+        	{ DataType::DateTimeStamp, "date time stamp" },
+
+        	{ DataType::Year, "Year" },
+        	{ DataType::Month, "Month" },
+        	{ DataType::Day, "Day" },
+        	{ DataType::YearMonth, "Year Month" },
+        	{ DataType::MonthDay, "Month Day" },
+        	{ DataType::Duration, "duration" },
+        	{ DataType::YearMonthDuration, "year month duration" },
+        	{ DataType::DayTimeDuration, "day time duration" },
+
+        	{ DataType::Byte, "byte" },
+        	{ DataType::Short, "short" },
+        	{ DataType::Int, "int" },
+        	{ DataType::Long, "long" },
+        	{ DataType::UnsignedByte, "unsigned byte" },
+        	{ DataType::UnsignedShort, "unsigned short" },
+        	{ DataType::UnsignedLong, "unsigned long" },
+        	{ DataType::PositiveInteger, "positive integer" },
+        	{ DataType::NonNegativeInteger, "non-negative integer" },
+        	{ DataType::NegativeInteger, "negative integer" },
+        	{ DataType::NonPositiveInteger, "non-positive integer" },
+
+        	{ DataType::HexBinary, "hex binary" },
+        	{ DataType::Base64Binary, "base 64 binary" },
+
+        	{ DataType::AnyURI, "any URI" },
+        	{ DataType::Language, "language" },
+        	{ DataType::NormalizedString, "normalized string" },
+        	{ DataType::Token, "token" },
+        	{ DataType::NMTOKEN, "NMTOKEN" },
+        	{ DataType::Name, "Name" },
+        	{ DataType::NCName, "NCName" }
 	};
 }
 
@@ -310,6 +407,12 @@ ResourceNode::ResourceNode( World w, int i)
 {}
 
 // -----------------------------------------------------------------------------
+
+ResourceNode::ResourceNode( Node n )
+	: std::shared_ptr< ResourceNode_ >( static_pointer_cast< ResourceNode_ >( n ))
+{}
+
+// -----------------------------------------------------------------------------
 //	LiteralNode
 // -----------------------------------------------------------------------------
 
@@ -318,11 +421,23 @@ LiteralNode::LiteralNode( World w, const Literal & L)
 {}
 
 // -----------------------------------------------------------------------------
+
+LiteralNode::LiteralNode( Node n )
+	: std::shared_ptr< LiteralNode_ >( static_pointer_cast< LiteralNode_ >( n ))
+{}
+
+// -----------------------------------------------------------------------------
 //	BlankNode
 // -----------------------------------------------------------------------------
 
 BlankNode::BlankNode( World w, const std::string &id )
 	: std::shared_ptr< BlankNode_ >( new _BlankNode( w, id ))
+{}
+
+// -----------------------------------------------------------------------------
+
+BlankNode::BlankNode( Node n )
+	: std::shared_ptr< BlankNode_ >( static_pointer_cast< BlankNode_ >( n ))
 {}
 
 // -----------------------------------------------------------------------------
@@ -597,7 +712,32 @@ _LiteralNode:: toURI() const
 Literal
 _LiteralNode::toLiteral() const
 {
-	throw VX(Code) << "not implemented";
+	Literal L;
+	char *val = (char *)librdf_node_get_literal_value(node);
+	if ( val )
+	{
+		L.value( val );
+	}
+
+	char *lang = librdf_node_get_literal_value_language( node );
+	if ( lang )
+	{
+		L.language( lang );
+	}
+
+	librdf_uri *dturi = librdf_node_get_literal_value_datatype_uri( node );
+	if ( dturi )
+	{
+		URI uri( new _URI( dturi ));
+		string s( world->prefixes().prefixForm( uri ));
+		L.dataType( Literal::toDataType( s ));
+	}
+	else
+	{
+		L.dataType( DataType::PlainLiteral );
+	}
+	
+	return L;
 }
 
 // -----------------------------------------------------------------------------
