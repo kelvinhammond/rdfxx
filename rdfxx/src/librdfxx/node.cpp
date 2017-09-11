@@ -693,6 +693,8 @@ _LiteralNode::toString(const Format & format) const
 		if ( dturi )
 		{
 			s += "^^";
+			URI uri( new _URI( dturi ));
+			s += world->prefixes().prefixForm( uri );
 		}
 	}
 	if ( s.empty() ) s = _NodeBase::toString();
