@@ -662,6 +662,9 @@ public:
 	//! Virtual destructor
 	virtual ~Model_(){}
 
+	//! Return a reference to the model's world
+	virtual World getWorld() = 0;
+
 	//! Get number of statements if possible. May return <0 if not known.
 	virtual int size() const = 0;
 

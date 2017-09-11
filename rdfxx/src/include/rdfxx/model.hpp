@@ -81,6 +81,8 @@ class _Model : public Model_
     // Disallow assignment operator
     _Model & operator = (const _Model &) = delete;
 
+	World getWorld() { return world; }
+
     //! Get the number of statements int the model. 
     /*! 
      *  @return A positive integer or 0.
