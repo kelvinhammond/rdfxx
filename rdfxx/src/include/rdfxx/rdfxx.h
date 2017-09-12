@@ -149,6 +149,8 @@ public:
 	//! Create URI where the uri_string replaces anything after the final '/' in base_uri
 	URI( URI base_uri, const std::string &uri_string );
 
+	//! Create a URI from base URI and local name
+	URI( const std::string &local_name, URI basr_uri );
 };
 
 // ---------------------------------------------------------------

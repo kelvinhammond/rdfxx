@@ -82,6 +82,8 @@ class _URI : public URI_
     // create relative uri
     _URI( URI base, const char *uri_string );
 
+    _URI( const std::string &local_name, URI base_uri );
+
     //! RDF C++ URI destructor.
     /*! Deletes the internally stored librdf_URI object.
      */

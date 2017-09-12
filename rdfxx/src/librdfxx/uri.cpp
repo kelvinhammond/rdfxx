@@ -107,6 +107,12 @@ URI::URI( URI base_uri, const std::string &uri_string )
 {}
 
 // -----------------------------------------------------------------------------
+
+URI::URI(  const std::string &local_name, URI base_uri )
+	: std::shared_ptr< URI_ >( new _URI( local_name, base_uri ))
+{}
+
+// -----------------------------------------------------------------------------
 //	_URI
 // -----------------------------------------------------------------------------
 
@@ -167,6 +173,16 @@ _URI::_URI( URI _base, const char *_uri_string )
 {
 	librdf_uri *base = DEREF( URI, librdf_uri, _base );
 	uri = librdf_new_uri_relative_to_base( base, (const unsigned char *)_uri_string );
+    	if(!uri)
+		throw VX(Error) << "Failed to allocate URI";
+}
+
+// -----------------------------------------------------------------------------
+
+_URI::_URI( const std::string & local_name, URI _base )
+{
+	librdf_uri *base = DEREF( URI, librdf_uri, _base );
+	uri = librdf_new_uri_from_uri_local_name( base, (const unsigned char *) local_name.c_str());
     	if(!uri)
 		throw VX(Error) << "Failed to allocate URI";
 }

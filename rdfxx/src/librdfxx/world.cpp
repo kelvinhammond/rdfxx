@@ -237,7 +237,10 @@ Prefixes::uriForm( const std::string &s )
 	if ( s[0] == '<' && s[s.length()-1] == '>' )
 		return URI(World(world), s.substr(1, s.length()-2));
 	string::size_type p = s.find(':');
-	if ( p == string::npos ) return nullptr;
+	if ( p == string::npos )
+	{
+		return URI( s, base() );
+	}
 	if ( s.length() > p+2 )
 	{
 		if ( s[p+1] == '/' && s[p+2] == '/' )
