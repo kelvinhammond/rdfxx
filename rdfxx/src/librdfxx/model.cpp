@@ -201,6 +201,7 @@ _Model::predicates( Node subject, Node object )
 	if ( iter )
 	{
 		nodeIteratorToVector( iter, nodes );
+		librdf_free_iterator( iter );
 		return nodes;
 	}
 	else
@@ -219,6 +220,7 @@ _Model::objects( Node subject, Node predicate )
 	if ( iter )
 	{
 		nodeIteratorToVector( iter, nodes );
+		librdf_free_iterator( iter );
 		return nodes;
 	}
 	else
@@ -237,6 +239,7 @@ _Model::subjects( Node predicate, Node object )
 	if ( iter )
 	{
 		nodeIteratorToVector( iter, nodes );
+		librdf_free_iterator( iter );
 		return nodes;
 	}
 	else
@@ -255,6 +258,7 @@ _Model::arcsIn( Node object )
 	if ( iter )
 	{
 		nodeIteratorToVector( iter, nodes );
+		librdf_free_iterator( iter );
 		return nodes;
 	}
 	else
@@ -272,6 +276,7 @@ _Model::arcsOut( Node subject )
 	if ( iter )
 	{
 		nodeIteratorToVector( iter, nodes );
+		librdf_free_iterator( iter );
 		return nodes;
 	}
 	else
