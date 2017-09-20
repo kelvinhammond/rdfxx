@@ -86,6 +86,9 @@ Prefixes::Prefixes( World _w)
 	URI dc_uri( new _URI( World(world), "http://purl.org/dc/elements/1.1/"));
 	insert( "dc", dc_uri );
 
+	URI owl_uri( new _URI( World(world), "http://www.w3.org/2002/07/owl#"));
+	insert( "owl", owl_uri );
+
 	URI rdfxx_uri( new _URI( World(world), "https://sourceforge.net/p/ocratato-sassy/rdfxx#"));
 	insert( "rdfxx", rdfxx_uri );
 }
