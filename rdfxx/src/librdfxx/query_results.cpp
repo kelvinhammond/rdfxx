@@ -128,18 +128,19 @@ _QueryResult::count() const
 Node
 _QueryResult::getBoundValue(int _offset) const
 {
-    if(_offset >= count())
-    {
-	throw VX(Error) << "Parameter out of range";
-    }
+    	if(_offset >= count())
+    	{	
+		throw VX(Error) << "Parameter out of range";
+    	}
 
-    // The library returns a new node pointer so it will need to be freed
+    	// The library returns a new node pointer so it will need to be freed
 	librdf_node *n = librdf_query_results_get_binding_value(query_results, _offset);
+	if ( ! n ) return nullptr;
 	Node value( _NodeBase::make( world, n, true ));
-    if(!value)
-	throw VX(Error) << "Failed to allocate node";
+    	if(!value)
+		throw VX(Error) << "Failed to allocate node";
 
-    return value;
+    	return value;
 }
 
 // -----------------------------------------------------------------------------
@@ -147,26 +148,26 @@ _QueryResult::getBoundValue(int _offset) const
 Node
 _QueryResult::getBoundValue(const std::string & _name ) const
 {
-    if(_name.empty())
-    {
-	throw VX(Error) << "No binding name supplied";
-    }
+	if(_name.empty())
+	{
+		throw VX(Error) << "No binding name supplied";
+    	}
 
-    // The library returns a new node pointer so it will need to be freed
-    librdf_node *n = librdf_query_results_get_binding_value_by_name(
+    	// The library returns a new node pointer so it will need to be freed
+    	librdf_node *n = librdf_query_results_get_binding_value_by_name(
     			query_results, _name.c_str());
-    if ( ! n )
-    {
-    	throw VX(Error) << "\"" << _name << "\" is not bound.";
-    }
+    	if ( ! n )
+    	{
+    		return nullptr;
+    	}
 
-    // The library returns a new node pointer so it will need to be freed
+    	// The library returns a new node pointer so it will need to be freed
 	Node value( _NodeBase::make( world, n, true ));
-    if(!value)
-	throw VX(Error) << "Failed to allocate node";
+    	if(!value)
+		throw VX(Error) << "Failed to allocate node";
 
 
-    return value;
+    	return value;
 }
 
 

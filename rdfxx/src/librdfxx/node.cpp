@@ -555,12 +555,15 @@ _ResourceNode::_ResourceNode( World _w, Concept concept )
 _ResourceNode::_ResourceNode( World _w, int i )
 	: _NodeBase( _w, 0, true )
 {
+	Prefixes &prefixes = world->prefixes();
 	librdf_world *w = DEREF( World, librdf_world, _w );
 
     	// Create a new node. User controls lifetime.
-	string s("_:");
+	string s("rdf:_");
 	s += to_string( i );
-    	node = librdf_new_node_from_uri_string(w, (const unsigned char*)s.c_str());
+	URI _uri = prefixes.uriForm(s);
+    	librdf_uri *uri = DEREF( URI, librdf_uri, _uri );
+    	node = librdf_new_node_from_uri(w, uri);
     	if(!node)
 		throw VX(Error) << "Failed to allocate node";
 }
