@@ -755,7 +755,14 @@ _BlankNode::_BlankNode( World _w, const std::string &id )
 	librdf_world *w = DEREF( World, librdf_world, _w );
 
     	// Create a new node. User controls lifetime.
-    	node = librdf_new_node_from_blank_identifier(w, (const unsigned char*)id.c_str() );
+	if ( id.empty() )
+	{
+		node = librdf_new_node_from_blank_identifier(w, NULL );
+	}
+	else
+	{
+    		node = librdf_new_node_from_blank_identifier(w, (const unsigned char*)id.c_str() );
+	}
     	if(!node)
 		throw VX(Error) << "Failed to allocate node";
 }
